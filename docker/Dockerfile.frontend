@@ -1,0 +1,14 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copia manifest si existe (Dev B inicializa Angular dentro de frontend/)
+COPY package*.json ./
+
+RUN if [ -f package.json ]; then npm ci || npm install; fi
+
+COPY . .
+
+EXPOSE 4200
+
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "2000"]
