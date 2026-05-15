@@ -1,0 +1,3 @@
+# Carpeta del frontend Angular.
+# Dev B la inicializa con: ng new frontend --routing --style=scss --skip-git --directory=.
+# Borrar este .gitkeep cuando se haga el ng new.
