@@ -1,0 +1,28 @@
+<div class="shell">
+  <header class="topbar">
+    <button class="hamburger" (click)="toggleMenu()" aria-label="Menú">☰</button>
+    <a class="brand" routerLink="/">nandetuiter</a>
+    <div class="spacer"></div>
+    <div class="user">
+      <span class="hello">Hola,</span>
+      <strong>{{ username() }}</strong>
+      <button class="logout" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar" [class.open]="menuOpen()">
+      <nav>
+        <a routerLink="/" (click)="menuOpen.set(false)">Inicio</a>
+      </nav>
+    </aside>
+
+    @if (menuOpen()) {
+      <div class="backdrop" (click)="menuOpen.set(false)"></div>
+    }
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
