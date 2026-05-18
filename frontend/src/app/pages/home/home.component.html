@@ -14,13 +14,18 @@
     <p>&gt; cargando posts...</p>
   </article>
 
+  <article class="card card--maintenance" *ngIf="maintenance()">
+    <h2>Servidor en mantenimiento</h2>
+    <p>El backend est&aacute; en modo mantenimiento. Volv&eacute; en un rato porfavor,tomate un cafecito.</p>
+  </article>
+
   <article class="card card--error" *ngIf="error() as err">
     <h2>[ ERR ] Backend no disponible</h2>
     <p>{{ err }}</p>
     <p>Backend Django debe correr en <code>http://localhost:8000</code>.</p>
   </article>
 
-  <ng-container *ngIf="!loading() && !error()">
+  <ng-container *ngIf="!loading() && !error() && !maintenance()">
     <article class="card post" *ngFor="let p of posts()">
       <header class="post__head">
         <span class="post__author">&#64;{{ p.author_username }}</span>

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 interface AppConfig {
@@ -45,6 +45,7 @@ export class HomeComponent implements OnInit {
   hasPrev = signal(false);
   loading = signal(true);
   error = signal<string | null>(null);
+  maintenance = signal(false);
 
   ngOnInit(): void {
     this.http.get<AppConfig>(`${this.apiBase}/config/`).subscribe({
@@ -60,6 +61,7 @@ export class HomeComponent implements OnInit {
   loadPage(page: number): void {
     this.loading.set(true);
     this.error.set(null);
+    this.maintenance.set(false);
     this.http
       .get<PaginatedPosts>(`${this.apiBase}/posts/?page=${page}`)
       .subscribe({
@@ -72,8 +74,12 @@ export class HomeComponent implements OnInit {
           this.totalPages.set(Math.max(1, Math.ceil(res.count / this.pageSize())));
           this.loading.set(false);
         },
-        error: (err) => {
-          this.error.set(err.message ?? 'No se pudo cargar /api/posts/');
+        error: (err: HttpErrorResponse) => {
+          if (err.error?.maintenance || err.status === 503) {
+            this.maintenance.set(true);
+          } else {
+            this.error.set(err.message ?? 'No se pudo cargar /api/posts/');
+          }
           this.loading.set(false);
         },
       });

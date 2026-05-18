@@ -96,6 +96,15 @@ $border: #134d13;
       color: #ff5555;
     }
   }
+
+  &--maintenance {
+    border-color: #ffaa00;
+    box-shadow: 0 0 12px rgba(#ffaa00, 0.2);
+
+    h2 {
+      color: #ffaa00;
+    }
+  }
 }
 
 .post {
