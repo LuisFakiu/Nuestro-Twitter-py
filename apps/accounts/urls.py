@@ -1,9 +1,11 @@
-"""URLs de accounts. Placeholder — Luis las completa Sem 1."""
+"""URLs de accounts."""
 from django.urls import path
+
+from . import views
 
 app_name = 'accounts'
 
 urlpatterns = [
-    # path('auth/register/', views.RegisterView.as_view(), name='register'),
-    # path('auth/login/', TokenObtainPairView.as_view(), name='login'),
+    path('me/', views.MeView.as_view(), name='me'),
+    path('auth/register/', views.RegisterView.as_view(), name='register'),
 ]

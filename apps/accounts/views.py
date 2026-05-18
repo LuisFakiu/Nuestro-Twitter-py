@@ -1,14 +1,24 @@
 """
-Endpoints de accounts. Placeholders — Sem 1 los completa Luis.
-
-TODO Sem 1:
-- POST /api/auth/register/
-- POST /api/auth/login/  (JWT)
-- POST /api/auth/refresh/
-- POST /api/auth/logout/
-- GET/PATCH /api/me/
-- POST /api/users/<username>/follow/
-- DELETE /api/users/<username>/follow/
-- GET /api/users/<username>/followers/
-- GET /api/users/<username>/following/
+Endpoints de accounts.
 """
+from rest_framework import generics, permissions
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .serializers import LoginSerializer, MeSerializer, RegisterSerializer
+
+
+class MeView(generics.RetrieveUpdateAPIView):
+    serializer_class = MeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
