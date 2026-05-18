@@ -2,11 +2,9 @@
 
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
+from apps.accounts.views import LoginView
 from apps.core.views import ApiRootView
 
 urlpatterns = [
@@ -17,7 +15,7 @@ urlpatterns = [
     path('api/', include('apps.core.urls')),
 
     # Auth JWT
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/login/', LoginView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Apps
