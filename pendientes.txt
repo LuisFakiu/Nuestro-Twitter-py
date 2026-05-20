@@ -1,0 +1,13 @@
+solucionar hastag 
+borrar posts
+modal seguidores y seguidos 
+borrar seguidores manualmente
+se bugea al inspeccionar el propio perfil,cuando entro a un perfil ajeno 
+modal menciones en posteos
+agregar imagenes al posts
+
+
+buscador dinamico (hastag y usuarios posteos)
+
+feed algoritmico
+agregar oauth 
