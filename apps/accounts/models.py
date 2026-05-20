@@ -5,6 +5,7 @@ from django.db import models
 class User(AbstractUser):
     bio = models.CharField(max_length=160, blank=True, default='')
     avatar_url = models.URLField(blank=True, default='')
+    location = models.CharField(max_length=100, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

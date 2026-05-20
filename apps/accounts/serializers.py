@@ -17,6 +17,7 @@ class MeSerializer(serializers.ModelSerializer):
             'last_name',
             'bio',
             'avatar_url',
+            'location',
             'date_joined',
         ]
         read_only_fields = ['id', 'username', 'date_joined']
@@ -61,6 +62,27 @@ class RegisterSerializer(serializers.ModelSerializer):
                 'refresh': str(refresh),
             },
         }
+
+
+class PublicProfileSerializer(serializers.ModelSerializer):
+    followers_count = serializers.IntegerField(source='followers_set.count', read_only=True)
+    following_count = serializers.IntegerField(source='following_set.count', read_only=True)
+    posts_count = serializers.IntegerField(source='posts.count', read_only=True)
+    is_following = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'username', 'bio', 'avatar_url', 'location',
+            'date_joined', 'followers_count', 'following_count',
+            'posts_count', 'is_following',
+        ]
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.followers_set.filter(follower=request.user).exists()
+        return False
 
 
 class LoginSerializer(TokenObtainPairSerializer):
