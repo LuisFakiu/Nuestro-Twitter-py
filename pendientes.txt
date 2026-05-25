@@ -3,17 +3,20 @@
 *borrar seguidores manualmente
 *buscador de hashtags y posts
 *hashtag como link para ver otras publicaciones con el mismo #
-*borrar posts
+*borrar posts y repost
 *se bugea al inspeccionar el propio perfil,cuando entro a un perfil ajeno
-*agregar imagenes al posts
+*agregar imagenes al post
+*agregar comentarios
+*repostear
+*autocompletado + dropdown al escribir posteo con # y @
 
-
-agregar comentarios
+citar post + agregar imagen + "post no disponible" cuando se borra post citado
+que las fotos de perfil sean visibles en el feed
+los comentarios aun no pueden ser respondidos
 que el creador del post pueda limitar los comentarios
 bloquear cuentas
 apartado de configuraciones + cuenta privada o publica + cambiar contraseña + eliminar cuenta + cuentas bloqueadas
 separar notificaciones en "todos" y "menciones"
-repostear y citar posteos
 guardar posts y lista de elementos guardados y mis me gusta
 feed algoritmico + separar feed en "para ti" y "siguiendo"
 mensajes directos
