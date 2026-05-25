@@ -52,3 +52,14 @@ a {
     text-shadow: 0 0 6px var(--neon);
   }
 }
+
+.mention-link,
+.hashtag-link {
+  color: var(--neon);
+  text-decoration: none;
+
+  &:hover {
+    text-shadow: 0 0 6px var(--neon);
+    text-decoration: underline;
+  }
+}

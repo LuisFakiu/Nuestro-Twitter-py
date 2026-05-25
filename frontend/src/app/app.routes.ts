@@ -3,6 +3,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { LayoutComponent } from './layout/layout.component';
 import { authGuard } from './core/auth.guard';
+import { PostDetailComponent } from './pages/post-detail/post-detail.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 import { ComposerComponent } from './pages/composer/composer.component';
@@ -17,6 +18,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
+      { path: 'post/:id', component: PostDetailComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'users/:username', component: UserProfileComponent },
       { path: 'composer', component: ComposerComponent },
