@@ -4,16 +4,65 @@
   </header>
 
   <form [formGroup]="form" (ngSubmit)="save()">
-    <textarea formControlName="content" rows="4" maxlength="280" placeholder="¿Qué está pasando?"></textarea>
+    <div class="composer__textarea-wrapper">
+      <textarea
+        #textareaRef
+        formControlName="content"
+        rows="4"
+        maxlength="280"
+        placeholder="¿Qué está pasando?"
+        (input)="onInput()"
+        (keydown)="onKeyDown($event)"
+      ></textarea>
+
+      <div class="composer__suggestions" *ngIf="showSuggestions">
+        <!-- Usuarios -->
+        <ng-container *ngFor="let user of suggestedUsers; let i = index">
+          <button
+            type="button"
+            class="suggestion-item"
+            [class.suggestion-item--selected]="selectedIndex === i"
+            (mousedown)="selectSuggestion('user', user, i)"
+          >
+            <div class="suggestion-item__avatar-placeholder" *ngIf="!user.avatar_url">
+              {{ user.username.charAt(0).toUpperCase() }}
+            </div>
+            <img
+              class="suggestion-item__avatar"
+              [src]="user.avatar_url"
+              alt="{{ user.username }}"
+              *ngIf="user.avatar_url"
+            />
+            <div class="suggestion-item__info">
+              <span class="suggestion-item__name">&#64;{{ user.username }}</span>
+              <span class="suggestion-item__bio" *ngIf="user.bio">{{ truncateBio(user.bio) }}</span>
+            </div>
+            <span class="suggestion-item__following" *ngIf="user.is_following">Siguiendo</span>
+          </button>
+        </ng-container>
+
+        <!-- Hashtags -->
+        <ng-container *ngFor="let tag of suggestedHashtags; let i = index">
+          <button
+            type="button"
+            class="suggestion-item suggestion-item--hashtag"
+            [class.suggestion-item--selected]="selectedIndex === suggestedUsers.length + i"
+            (mousedown)="selectSuggestion('hashtag', tag, suggestedUsers.length + i)"
+          >
+            <span class="suggestion-item__hashtag">&#35;{{ tag.name }}</span>
+            <span class="suggestion-item__count">{{ tag.post_count }} posts</span>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
     <div class="composer__info">
       <span class="char-count">{{ form.controls.content.value.length }}/280</span>
     </div>
 
     <input formControlName="image_url" type="url" placeholder="URL de imagen (opcional)" />
 
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
+    <p class="error" *ngIf="error()">{{ error() }}</p>
 
     <button type="submit" [disabled]="form.invalid || saving()">
       {{ saving() ? 'Publicando…' : 'Publicar' }}
