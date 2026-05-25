@@ -1,13 +1,28 @@
-solucionar hastag 
-borrar posts
-modal seguidores y seguidos 
-borrar seguidores manualmente
-se bugea al inspeccionar el propio perfil,cuando entro a un perfil ajeno 
-modal menciones en posteos
-agregar imagenes al posts
+*solucionar hashtag 
+*modal seguidores y seguidos 
+*borrar seguidores manualmente
+*buscador de hashtags y posts
+*hashtag como link para ver otras publicaciones con el mismo #
+*borrar posts
+*se bugea al inspeccionar el propio perfil,cuando entro a un perfil ajeno
+*agregar imagenes al posts
 
 
-buscador dinamico (hastag y usuarios posteos)
+agregar comentarios
+que el creador del post pueda limitar los comentarios
+bloquear cuentas
+apartado de configuraciones + cuenta privada o publica + cambiar contraseña + eliminar cuenta + cuentas bloqueadas
+separar notificaciones en "todos" y "menciones"
+repostear y citar posteos
+guardar posts y lista de elementos guardados y mis me gusta
+feed algoritmico + separar feed en "para ti" y "siguiendo"
+mensajes directos
+agregar oauth
 
-feed algoritmico
-agregar oauth 
+agregar middleware, para que la primera vista obligatoria sea la pantalla de login/registro
+
+
+Indicadores del profesor:
+Usuarios con perfiles, posts, follows, feed personalizado y mensajes directos.
+Acá el desafío es la performance: optimización de queries con select_related y prefetch_related, caché con Redis, feed algorítmico
+Upload de imágenes a S3 o Cloudinary, y autenticación con OAuth (Google, GitHub). Sumale hashtags, menciones y un buscador.
