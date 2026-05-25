@@ -93,15 +93,48 @@
                       @if (u.bio) { <span class="follow-list__bio">{{ u.bio }}</span> }
                     </div>
                   </a>
-                  @if (mode === 'followers' && isOwnProfile()) {
-                    <button type="button" class="follow-list__remove" (click)="removeFollower(u.username)" title="Quitar seguidor">
-                      Quitar
-                    </button>
+                  @if (isOwnProfile()) {
+                    @if (mode === 'followers') {
+                      <button type="button" class="follow-list__remove" (click)="askAction(u, 'remove')" title="Quitar seguidor">
+                        Quitar
+                      </button>
+                    } @else if (mode === 'following') {
+                      <button type="button" class="follow-list__remove" (click)="askAction(u, 'unfollow')" title="Dejar de seguir">
+                        Dejar de seguir
+                      </button>
+                    }
                   }
                 </li>
               }
             </ul>
           }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (actionTarget(); as target) {
+    <div class="confirm-modal-backdrop" (click)="cancelAction()">
+      <div class="confirm-modal" (click)="$event.stopPropagation()">
+        <h3 class="confirm-modal__title">
+          {{ target.action === 'remove' ? 'Quitar seguidor' : 'Dejar de seguir' }}
+        </h3>
+        <p class="confirm-modal__msg">
+          @if (target.action === 'remove') {
+            ¿Seguro que querés quitar a <strong>{{ '@' + target.user.username }}</strong> de tus seguidores?
+          } @else {
+            ¿Seguro que querés dejar de seguir a <strong>{{ '@' + target.user.username }}</strong>?
+          }
+        </p>
+        <div class="confirm-modal__actions">
+          <button type="button" class="btn-ghost" (click)="cancelAction()" [disabled]="actionLoading()">Cancelar</button>
+          <button type="button" class="btn-danger" (click)="confirmAction()" [disabled]="actionLoading()">
+            @if (actionLoading()) {
+              Procesando...
+            } @else {
+              {{ target.action === 'remove' ? 'Quitar' : 'Dejar de seguir' }}
+            }
+          </button>
         </div>
       </div>
     </div>

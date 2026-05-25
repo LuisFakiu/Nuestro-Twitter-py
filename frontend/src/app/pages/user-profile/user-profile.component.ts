@@ -57,6 +57,9 @@ export class UserProfileComponent implements OnInit {
   followList = signal<FollowUser[]>([]);
   followListLoading = signal(false);
 
+  actionTarget = signal<{ user: FollowUser; action: 'remove' | 'unfollow' } | null>(null);
+  actionLoading = signal(false);
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const username = params.get('username');
@@ -133,13 +136,40 @@ export class UserProfileComponent implements OnInit {
     this.followList.set([]);
   }
 
-  removeFollower(username: string): void {
-    if (!confirm(`¿Quitar a @${username} de tus seguidores?`)) return;
-    this.http.request('DELETE', `${this.apiBase}/users/${username}/remove-follower/`, { responseType: 'text' }).subscribe({
+  askAction(user: FollowUser, action: 'remove' | 'unfollow'): void {
+    this.actionTarget.set({ user, action });
+  }
+
+  cancelAction(): void {
+    if (this.actionLoading()) return;
+    this.actionTarget.set(null);
+  }
+
+  confirmAction(): void {
+    const target = this.actionTarget();
+    if (!target) return;
+    const url =
+      target.action === 'remove'
+        ? `${this.apiBase}/users/${target.user.username}/remove-follower/`
+        : `${this.apiBase}/users/${target.user.username}/follow/`;
+    this.actionLoading.set(true);
+    this.http.request('DELETE', url, { responseType: 'text' }).subscribe({
       next: () => {
-        this.followList.update((list) => list.filter((u) => u.username !== username));
+        this.followList.update((list) => list.filter((u) => u.username !== target.user.username));
         const p = this.profile();
-        if (p) this.profile.set({ ...p, followers_count: Math.max(0, p.followers_count - 1) });
+        if (p) {
+          if (target.action === 'remove') {
+            this.profile.set({ ...p, followers_count: Math.max(0, p.followers_count - 1) });
+          } else {
+            this.profile.set({ ...p, following_count: Math.max(0, p.following_count - 1) });
+          }
+        }
+        this.actionLoading.set(false);
+        this.actionTarget.set(null);
+      },
+      error: () => {
+        this.actionLoading.set(false);
+        this.actionTarget.set(null);
       },
     });
   }
