@@ -58,9 +58,16 @@ export class UserProfileComponent implements OnInit {
   followListLoading = signal(false);
 
   ngOnInit(): void {
-    const username = this.route.snapshot.paramMap.get('username')!;
-    this.loadProfile(username);
-    this.loadPosts(username);
+    this.route.paramMap.subscribe((params) => {
+      const username = params.get('username');
+      if (!username) return;
+      this.profile.set(null);
+      this.posts.set([]);
+      this.error.set(null);
+      this.loading.set(true);
+      this.loadProfile(username);
+      this.loadPosts(username);
+    });
   }
 
   private loadProfile(username: string): void {
