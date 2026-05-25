@@ -155,12 +155,13 @@ class TrendingHashtagsView(generics.ListAPIView):
 class HashtagSearchView(generics.ListAPIView):
     serializer_class = HashtagSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
 
     def get_queryset(self):
         q = self.request.query_params.get('q', '')
         if not q:
             return Hashtag.objects.none()
-        return Hashtag.objects.filter(name__icontains=q).order_by('-post_count')
+        return Hashtag.objects.filter(name__icontains=q).order_by('-post_count')[:10]
 
 
 @api_view(['DELETE'])

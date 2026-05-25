@@ -93,6 +93,7 @@ def remove_follower(request, username):
 class UserSearchView(generics.ListAPIView):
     serializer_class = PublicProfileSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
 
     def get_queryset(self):
         q = self.request.query_params.get('q', '')
@@ -100,7 +101,7 @@ class UserSearchView(generics.ListAPIView):
             return User.objects.none()
         return User.objects.filter(
             Q(username__icontains=q) | Q(bio__icontains=q)
-        )
+        )[:10]
 
 
 class FollowersListView(generics.ListAPIView):
