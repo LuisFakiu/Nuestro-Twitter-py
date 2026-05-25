@@ -1,11 +1,27 @@
 import re
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from apps.accounts.models import User
 
 from .models import Hashtag, HashtagPost, Mention, Post
+
+
+@receiver(post_save, sender=HashtagPost)
+def increment_hashtag_count(sender, instance, created, **kwargs):
+    if created:
+        hashtag = instance.hashtag
+        hashtag.post_count = hashtag.post_count + 1
+        hashtag.save(update_fields=['post_count'])
+
+
+@receiver(post_delete, sender=HashtagPost)
+def decrement_hashtag_count(sender, instance, **kwargs):
+    hashtag = instance.hashtag
+    if hashtag.post_count > 0:
+        hashtag.post_count = hashtag.post_count - 1
+        hashtag.save(update_fields=['post_count'])
 
 
 @receiver(post_save, sender=Post)
