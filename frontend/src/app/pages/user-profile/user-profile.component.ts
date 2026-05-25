@@ -25,6 +25,14 @@ interface Post {
   is_liked: boolean;
 }
 
+interface FollowUser {
+  username: string;
+  avatar_url: string;
+  bio: string;
+}
+
+type FollowModalMode = 'followers' | 'following' | null;
+
 @Component({
   selector: 'app-user-profile',
   standalone: true,
@@ -44,6 +52,10 @@ export class UserProfileComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   followLoading = signal(false);
+
+  followModalMode = signal<FollowModalMode>(null);
+  followList = signal<FollowUser[]>([]);
+  followListLoading = signal(false);
 
   ngOnInit(): void {
     const username = this.route.snapshot.paramMap.get('username')!;
@@ -92,5 +104,25 @@ export class UserProfileComponent implements OnInit {
 
   isOwnProfile(): boolean {
     return this.auth.username() === this.profile()?.username;
+  }
+
+  openFollowModal(mode: 'followers' | 'following'): void {
+    const p = this.profile();
+    if (!p) return;
+    this.followModalMode.set(mode);
+    this.followList.set([]);
+    this.followListLoading.set(true);
+    this.http.get<any>(`${this.apiBase}/users/${p.username}/${mode}/`).subscribe({
+      next: (res) => {
+        this.followList.set(res.results || res || []);
+        this.followListLoading.set(false);
+      },
+      error: () => this.followListLoading.set(false),
+    });
+  }
+
+  closeFollowModal(): void {
+    this.followModalMode.set(null);
+    this.followList.set([]);
   }
 }

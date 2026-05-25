@@ -94,7 +94,7 @@ class FollowersListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(following_set__follower=user)
+        return User.objects.filter(following_set__following=user)
 
 
 class FollowingListView(generics.ListAPIView):
@@ -103,4 +103,4 @@ class FollowingListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(followers_set__following=user)
+        return User.objects.filter(followers_set__follower=user)

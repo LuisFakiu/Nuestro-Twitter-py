@@ -23,8 +23,12 @@
         </p>
         <div class="stats">
           <span><strong>{{ p.posts_count }}</strong> posts</span>
-          <span><strong>{{ p.followers_count }}</strong> seguidores</span>
-          <span><strong>{{ p.following_count }}</strong> siguiendo</span>
+          <button type="button" class="stat-btn" (click)="openFollowModal('followers')">
+            <strong>{{ p.followers_count }}</strong> seguidores
+          </button>
+          <button type="button" class="stat-btn" (click)="openFollowModal('following')">
+            <strong>{{ p.following_count }}</strong> siguiendo
+          </button>
         </div>
       </div>
       @if (!isOwnProfile()) {
@@ -60,5 +64,41 @@
     } @else if (error()) {
       <article class="card card--error"><h2>[ ERR ]</h2><p>{{ error() }}</p></article>
     }
+  }
+
+  @if (followModalMode(); as mode) {
+    <div class="follow-modal-backdrop" (click)="closeFollowModal()">
+      <div class="follow-modal" (click)="$event.stopPropagation()">
+        <header class="follow-modal__head">
+          <h2>{{ mode === 'followers' ? 'Seguidores' : 'Siguiendo' }}</h2>
+          <button class="follow-modal__close" type="button" (click)="closeFollowModal()" aria-label="Cerrar">×</button>
+        </header>
+        <div class="follow-modal__body">
+          @if (followListLoading()) {
+            <p class="follow-modal__msg">&gt; cargando...</p>
+          } @else if (followList().length === 0) {
+            <p class="follow-modal__msg">&gt; sin usuarios.</p>
+          } @else {
+            <ul class="follow-list">
+              @for (u of followList(); track u.username) {
+                <li class="follow-list__item">
+                  <a [routerLink]="['/users', u.username]" (click)="closeFollowModal()" class="follow-list__link">
+                    @if (u.avatar_url) {
+                      <img [src]="u.avatar_url" alt="avatar" class="follow-list__avatar" />
+                    } @else {
+                      <div class="follow-list__avatar avatar-placeholder">{{ '@' + u.username[0] }}</div>
+                    }
+                    <div class="follow-list__meta">
+                      <strong>{{ '@' + u.username }}</strong>
+                      @if (u.bio) { <span class="follow-list__bio">{{ u.bio }}</span> }
+                    </div>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
   }
 </section>
