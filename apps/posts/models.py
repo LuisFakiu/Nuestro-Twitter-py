@@ -10,8 +10,16 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts',
     )
-    content = models.TextField()
+    content = models.TextField(blank=True, default='')
     image_url = models.URLField(max_length=500, blank=True, null=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='replies',
+    )
+    shared_post = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reposters',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -19,7 +27,7 @@ class Post(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.author}: {self.content[:30]}'
+        return f'{self.author}: {self.content[:30] or "(repost)"}'
 
 
 class Like(models.Model):
