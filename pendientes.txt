@@ -5,13 +5,15 @@
 *hashtag como link para ver otras publicaciones con el mismo #
 *borrar posts y repost
 *se bugea al inspeccionar el propio perfil,cuando entro a un perfil ajeno
-*agregar imagenes al post
+*agregar imagenes al posts
+*agregar middleware, para que la primera vista obligatoria sea la pantalla de login/registro
 *agregar comentarios
 *repostear
-*autocompletado + dropdown al escribir posteo con # y @
+*autocompletado + dropdown al escribir posteo con @ y #
 
-citar post + agregar imagen + "post no disponible" cuando se borra post citado
-que las fotos de perfil sean visibles en el feed
+
+citar post + agregar imagen + "poat no disponible" cuando se borra el post citado
+foto de perfil visible en el feed
 los comentarios aun no pueden ser respondidos
 que el creador del post pueda limitar los comentarios
 bloquear cuentas
@@ -22,7 +24,7 @@ feed algoritmico + separar feed en "para ti" y "siguiendo"
 mensajes directos
 agregar oauth
 
-agregar middleware, para que la primera vista obligatoria sea la pantalla de login/registro
+
 
 
 Indicadores del profesor:
