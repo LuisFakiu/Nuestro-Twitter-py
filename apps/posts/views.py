@@ -7,6 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from apps.accounts.models import BlockedUser
+from apps.accounts.utils import get_visible_users
 from .models import Hashtag, Like, Post
 from .serializers import HashtagSerializer, PostSerializer, PostMinSerializer
 
@@ -24,8 +26,10 @@ class PostListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            parent__isnull=True, shared_post__isnull=True
+            parent__isnull=True, shared_post__isnull=True,
+            author__in=visible,
         ).select_related('author')
 
     def perform_create(self, serializer):
@@ -33,9 +37,12 @@ class PostListCreateView(generics.ListCreateAPIView):
 
 
 class PostDetailView(generics.RetrieveAPIView):
-    queryset = Post.objects.select_related('author').all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        visible = get_visible_users(self.request.user)
+        return Post.objects.filter(author__in=visible).select_related('author')
 
 
 class FeedView(generics.ListAPIView):
@@ -45,10 +52,13 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         following_users = self.request.user.following_set.values('following')
+        blocked = BlockedUser.objects.filter(
+            blocker=self.request.user
+        ).values('blocked')
         return Post.objects.filter(
             Q(author__in=following_users, parent__isnull=True) |
             Q(author__in=following_users, shared_post__isnull=False)
-        ).select_related('author').order_by('-created_at')
+        ).exclude(author__in=blocked).select_related('author').order_by('-created_at')
 
 
 @api_view(['POST', 'DELETE'])
@@ -80,8 +90,10 @@ class UserPostsView(generics.ListAPIView):
     pagination_class = PostsPagination
 
     def get_queryset(self):
+        visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            author__username=self.kwargs['username']
+            author__username=self.kwargs['username'],
+            author__in=visible,
         ).select_related('author')
 
 
@@ -91,8 +103,10 @@ class PostRepliesView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            parent_id=self.kwargs['pk']
+            parent_id=self.kwargs['pk'],
+            author__in=visible,
         ).select_related('author')
 
     def perform_create(self, serializer):
@@ -138,11 +152,13 @@ def repost_post(request, pk):
 class HashtagPostsView(generics.ListAPIView):
     serializer_class = PostSerializer
     pagination_class = PostsPagination
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            hashtags__name=self.kwargs['tag']
+            hashtags__name=self.kwargs['tag'],
+            author__in=visible,
         ).select_related('author')
 
 
@@ -186,6 +202,8 @@ class SearchView(generics.ListAPIView):
         q = self.request.query_params.get('q', '')
         if not q:
             return Post.objects.none()
+        visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            Q(content__icontains=q)
+            Q(content__icontains=q),
+            author__in=visible,
         ).select_related('author')

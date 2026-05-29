@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import BlockedUser, Follow, User
+from .utils import can_view_profile, is_blocked_by
 from .serializers import (
     BlockedUserSerializer,
     ChangePasswordSerializer,
@@ -43,6 +44,17 @@ class PublicProfileView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'username'
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not can_view_profile(request, instance):
+            serializer = PublicProfileSerializer(
+                instance, context={'request': request}
+            )
+            data = serializer.data
+            data['posts_count'] = 0
+            return Response(data)
+        return super().retrieve(request, *args, **kwargs)
+
 
 @api_view(['POST', 'DELETE'])
 @permission_classes([permissions.IsAuthenticated])
@@ -53,6 +65,16 @@ def follow_user(request, username):
         if target == request.user:
             return Response(
                 {'error': 'No puedes seguirte a ti mismo'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if is_blocked_by(blocker=target, blocked=request.user):
+            return Response(
+                {'error': 'No puedes seguir a este usuario'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if is_blocked_by(blocker=request.user, blocked=target):
+            return Response(
+                {'error': 'Tienes bloqueado a este usuario'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         _, created = Follow.objects.get_or_create(
