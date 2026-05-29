@@ -9,6 +9,7 @@ import { UserProfileComponent } from './pages/user-profile/user-profile.componen
 import { ComposerComponent } from './pages/composer/composer.component';
 import { SearchComponent } from './pages/search/search.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'composer', component: ComposerComponent },
       { path: 'search', component: SearchComponent },
       { path: 'notifications', component: NotificationsComponent },
+      { path: 'settings', component: SettingsComponent },
     ],
   },
   { path: '**', redirectTo: '' },
