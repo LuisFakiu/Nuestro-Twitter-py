@@ -82,6 +82,7 @@
     @if (googleReady()) {
       <div class="divider"><span>o</span></div>
       <button type="button" class="google-btn" (click)="signInWithGoogle()" [disabled]="loading()">
+        <img src="icons8-google-48.png" alt="" class="google-icon" />
         Continuar con Google
       </button>
     }
