@@ -27,6 +27,9 @@ export class LoginComponent implements AfterViewInit {
   loading = signal(false);
   error = signal<string | null>(null);
   info = signal<string | null>(null);
+  googleReady = signal(false);
+
+  private codeClient: any = null;
 
   loginForm = this.fb.nonNullable.group({
     username: ['', Validators.required],
@@ -44,7 +47,7 @@ export class LoginComponent implements AfterViewInit {
     this.http.get<{ google_client_id: string }>(`${environment.apiUrl}/config/`).subscribe({
       next: (cfg) => {
         if (!cfg.google_client_id) return; // Google no configurado en el server
-        this.loadGoogleScript().then(() => this.renderGoogleButton(cfg.google_client_id));
+        this.loadGoogleScript().then(() => this.initCodeClient(cfg.google_client_id));
       },
     });
   }
@@ -70,28 +73,28 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
-  private renderGoogleButton(clientId: string): void {
-    if (typeof google === 'undefined' || !google.accounts) return;
-    google.accounts.id.initialize({
+  private initCodeClient(clientId: string): void {
+    if (typeof google === 'undefined' || !google.accounts?.oauth2) return;
+    this.codeClient = google.accounts.oauth2.initCodeClient({
       client_id: clientId,
-      callback: (resp: { credential: string }) => this.handleGoogleCredential(resp.credential),
+      scope: 'openid email profile',
+      ux_mode: 'popup',
+      callback: (resp: { code?: string; error?: string }) => {
+        if (resp.code) this.handleGoogleCode(resp.code);
+      },
     });
-    const container = document.getElementById('googleBtn');
-    if (container) {
-      google.accounts.id.renderButton(container, {
-        theme: 'outline',
-        size: 'large',
-        text: 'continue_with',
-        width: 280,
-      });
-    }
+    this.googleReady.set(true);
   }
 
-  private handleGoogleCredential(credential: string): void {
+  signInWithGoogle(): void {
+    this.codeClient?.requestCode();
+  }
+
+  private handleGoogleCode(code: string): void {
     this.zone.run(() => {
       this.loading.set(true);
       this.error.set(null);
-      this.auth.googleLogin(credential).subscribe({
+      this.auth.googleLogin(code).subscribe({
         next: () => this.router.navigate(['/']),
         error: (err) => {
           this.error.set(err?.error?.detail ?? 'Error al iniciar con Google');

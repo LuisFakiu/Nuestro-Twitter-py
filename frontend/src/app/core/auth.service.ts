@@ -59,9 +59,9 @@ export class AuthService {
       .pipe(tap((res) => this.persist(res)));
   }
 
-  googleLogin(credential: string): Observable<AuthResponse> {
+  googleLogin(code: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/google/`, { credential })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/google/`, { code })
       .pipe(tap((res) => this.persist(res)));
   }
 
