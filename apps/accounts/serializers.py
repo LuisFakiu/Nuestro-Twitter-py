@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User
+from .models import BlockedUser, User
 
 
 class MeSerializer(serializers.ModelSerializer):
@@ -18,6 +18,7 @@ class MeSerializer(serializers.ModelSerializer):
             'bio',
             'avatar_url',
             'location',
+            'is_private',
             'date_joined',
         ]
         read_only_fields = ['id', 'username', 'date_joined']
@@ -74,8 +75,8 @@ class PublicProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'username', 'bio', 'avatar_url', 'location',
-            'date_joined', 'followers_count', 'following_count',
-            'posts_count', 'is_following',
+            'is_private', 'date_joined', 'followers_count',
+            'following_count', 'posts_count', 'is_following',
         ]
 
     def get_is_following(self, obj):
@@ -101,3 +102,24 @@ class LoginSerializer(TokenObtainPairSerializer):
                 'refresh': data['refresh'],
             },
         }
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, validators=[validate_password])
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('La contraseña actual no es correcta.')
+        return value
+
+
+class BlockedUserSerializer(serializers.ModelSerializer):
+    blocked_username = serializers.CharField(source='blocked.username', read_only=True)
+    blocked_avatar = serializers.CharField(source='blocked.avatar_url', read_only=True)
+
+    class Meta:
+        model = BlockedUser
+        fields = ['id', 'blocked', 'blocked_username', 'blocked_avatar', 'created_at']
+        read_only_fields = ['id', 'blocked_username', 'blocked_avatar', 'created_at']
