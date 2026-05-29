@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
@@ -19,6 +19,7 @@ export class PostDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private location = inject(Location);
 
   private readonly apiBase = environment.apiUrl;
 
@@ -33,6 +34,12 @@ export class PostDetailComponent implements OnInit {
 
   deleteTarget = signal<Post | null>(null);
   deleting = signal(false);
+
+  repostTarget = signal<Post | null>(null);
+  repostModalMode = signal<'menu' | 'quote' | null>(null);
+  quoteContent = signal('');
+  quoteImageUrl = signal('');
+  quoting = signal(false);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -81,9 +88,8 @@ export class PostDetailComponent implements OnInit {
   }
 
   toggleRepost(post: Post): void {
-    const url = `${this.apiBase}/posts/${post.id}/repost/`;
     if (post.is_reposted) {
-      this.http.delete(url, { responseType: 'json' }).subscribe({
+      this.http.delete(`${this.apiBase}/posts/${post.id}/repost/`, { responseType: 'json' }).subscribe({
         next: () => {
           this.replies.update(list => list.map(p =>
             p.id === post.id ? { ...p, is_reposted: false, repost_count: p.repost_count - 1 } : p
@@ -95,18 +101,61 @@ export class PostDetailComponent implements OnInit {
         },
       });
     } else {
-      this.http.post(url, {}, { responseType: 'json' }).subscribe({
-        next: () => {
-          this.replies.update(list => list.map(p =>
-            p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
-          ));
-          this.post.update(p => p && p.id === post.id
-            ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 }
-            : p
-          );
-        },
-      });
+      this.repostTarget.set(post);
+      this.repostModalMode.set('menu');
+      this.quoteContent.set('');
+      this.quoteImageUrl.set('');
     }
+  }
+
+  simpleRepost(post: Post): void {
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.replies.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.post.update(p => p && p.id === post.id
+          ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 }
+          : p
+        );
+        this.closeRepostModal();
+      },
+    });
+  }
+
+  sendQuote(post: Post): void {
+    const content = this.quoteContent().trim();
+    const imageUrl = this.quoteImageUrl().trim();
+    if (!content) return;
+    this.quoting.set(true);
+    const body: any = { content };
+    if (imageUrl) body.image_url = imageUrl;
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.replies.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.post.update(p => p && p.id === post.id
+          ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 }
+          : p
+        );
+        this.closeQuoteComposer();
+        this.quoting.set(false);
+      },
+      error: () => this.quoting.set(false),
+    });
+  }
+
+  closeRepostModal(): void {
+    this.repostTarget.set(null);
+    this.repostModalMode.set(null);
+  }
+
+  closeQuoteComposer(): void {
+    this.closeRepostModal();
+    this.quoteContent.set('');
+    this.quoteImageUrl.set('');
+    this.quoting.set(false);
   }
 
   sendReply(): void {
@@ -145,5 +194,9 @@ export class PostDetailComponent implements OnInit {
 
   isOwnPost(post: Post): boolean {
     return this.auth.user()?.id === post.author;
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

@@ -205,6 +205,24 @@ $border: #134d13;
   &:hover {
     border-color: $neon;
   }
+
+  &--deleted {
+    opacity: 0.6;
+    cursor: default;
+    border-style: dashed;
+    border-color: $muted;
+
+    &:hover {
+      border-color: $muted;
+    }
+  }
+
+  &__deleted-msg {
+    color: $muted;
+    font-style: italic;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
 }
 
 .action-btn {
@@ -303,4 +321,75 @@ $border: #134d13;
   font-weight: 600;
 
   &:hover:not(:disabled) { background: #ff6b6b; }
+}
+
+.btn-neon {
+  background: transparent;
+  border: 1px solid $neon-dim;
+  color: $neon;
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: $neon;
+    color: $bg;
+    box-shadow: 0 0 14px rgba($neon, 0.6);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.confirm-modal__actions--stacked {
+  flex-direction: column;
+}
+
+.quote-modal {
+  max-width: 460px;
+}
+
+.quote-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #001500;
+  border: 1px solid $border;
+  border-radius: 4px;
+  color: $text;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: $neon-dim;
+  }
+}
+
+.quote-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #001500;
+  border: 1px solid $border;
+  border-radius: 4px;
+  color: $text;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: $neon-dim;
+  }
 }

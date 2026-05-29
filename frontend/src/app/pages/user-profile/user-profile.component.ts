@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
@@ -31,7 +32,7 @@ type FollowModalMode = 'followers' | 'following' | null;
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [DatePipe, RouterLink, FormatContentPipe],
+  imports: [DatePipe, RouterLink, FormsModule, FormatContentPipe],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss',
 })
@@ -60,6 +61,12 @@ export class UserProfileComponent implements OnInit {
 
   repostDeleteTarget = signal<Post | null>(null);
   repostDeleting = signal(false);
+
+  repostTarget = signal<Post | null>(null);
+  repostModalMode = signal<'menu' | 'quote' | null>(null);
+  quoteContent = signal('');
+  quoteImageUrl = signal('');
+  quoting = signal(false);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -143,14 +150,53 @@ export class UserProfileComponent implements OnInit {
         },
       });
     } else {
-      this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
-        next: () => {
-          this.posts.update(list => list.map(p =>
-            p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
-          ));
-        },
-      });
+      this.repostTarget.set(post);
+      this.repostModalMode.set('menu');
+      this.quoteContent.set('');
+      this.quoteImageUrl.set('');
     }
+  }
+
+  simpleRepost(post: Post): void {
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeRepostModal();
+      },
+    });
+  }
+
+  sendQuote(post: Post): void {
+    const content = this.quoteContent().trim();
+    const imageUrl = this.quoteImageUrl().trim();
+    if (!content) return;
+    this.quoting.set(true);
+    const body: any = { content };
+    if (imageUrl) body.image_url = imageUrl;
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeQuoteComposer();
+        this.quoting.set(false);
+      },
+      error: () => this.quoting.set(false),
+    });
+  }
+
+  closeRepostModal(): void {
+    this.repostTarget.set(null);
+    this.repostModalMode.set(null);
+  }
+
+  closeQuoteComposer(): void {
+    this.closeRepostModal();
+    this.quoteContent.set('');
+    this.quoteImageUrl.set('');
+    this.quoting.set(false);
   }
 
   askDeleteRepost(post: Post): void { this.repostDeleteTarget.set(post); }

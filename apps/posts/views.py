@@ -28,7 +28,7 @@ class PostListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         visible = get_visible_users(self.request.user)
         return Post.objects.filter(
-            parent__isnull=True, shared_post__isnull=True,
+            parent__isnull=True,
             author__in=visible,
         ).select_related('author')
 
@@ -129,9 +129,11 @@ def repost_post(request, pk):
                 {'error': 'Ya reposteaste este post'},
                 status=status.HTTP_409_CONFLICT,
             )
+        image_url = request.data.get('image_url', '').strip() or None
         post = Post.objects.create(
             author=request.user,
             content=content,
+            image_url=image_url,
             shared_post=original,
         )
         serializer = PostSerializer(post, context={'request': request})

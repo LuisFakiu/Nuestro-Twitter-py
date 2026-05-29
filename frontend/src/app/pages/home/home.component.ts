@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
@@ -23,7 +24,7 @@ interface PaginatedPosts {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink, FormatContentPipe],
+  imports: [CommonModule, DatePipe, RouterLink, FormsModule, FormatContentPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -47,6 +48,12 @@ export class HomeComponent implements OnInit {
 
   deleteTarget = signal<Post | null>(null);
   deleting = signal(false);
+
+  repostTarget = signal<Post | null>(null);
+  repostModalMode = signal<'menu' | 'quote' | null>(null);
+  quoteContent = signal('');
+  quoteImageUrl = signal('');
+  quoting = signal(false);
 
   ngOnInit(): void {
     this.http.get<AppConfig>(`${this.apiBase}/config/`).subscribe({
@@ -117,14 +124,53 @@ export class HomeComponent implements OnInit {
         },
       });
     } else {
-      this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
-        next: () => {
-          this.posts.update(list => list.map(p =>
-            p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
-          ));
-        },
-      });
+      this.repostTarget.set(post);
+      this.repostModalMode.set('menu');
+      this.quoteContent.set('');
+      this.quoteImageUrl.set('');
     }
+  }
+
+  simpleRepost(post: Post): void {
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeRepostModal();
+      },
+    });
+  }
+
+  sendQuote(post: Post): void {
+    const content = this.quoteContent().trim();
+    const imageUrl = this.quoteImageUrl().trim();
+    if (!content) return;
+    this.quoting.set(true);
+    const body: any = { content };
+    if (imageUrl) body.image_url = imageUrl;
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeQuoteComposer();
+        this.quoting.set(false);
+      },
+      error: () => this.quoting.set(false),
+    });
+  }
+
+  closeRepostModal(): void {
+    this.repostTarget.set(null);
+    this.repostModalMode.set(null);
+  }
+
+  closeQuoteComposer(): void {
+    this.closeRepostModal();
+    this.quoteContent.set('');
+    this.quoteImageUrl.set('');
+    this.quoting.set(false);
   }
 
   askDelete(post: Post): void {
