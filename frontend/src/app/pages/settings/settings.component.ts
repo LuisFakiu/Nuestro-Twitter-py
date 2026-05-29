@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface BlockedUser {
   id: number;
@@ -26,7 +27,7 @@ export class SettingsComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  private readonly apiBase = 'http://localhost:8000/api';
+  private readonly apiBase = environment.apiUrl;
 
   isPrivate = signal(false);
   togglingPrivacy = signal(false);
