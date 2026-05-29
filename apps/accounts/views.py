@@ -9,8 +9,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import Follow, User
+from .models import BlockedUser, Follow, User
 from .serializers import (
+    BlockedUserSerializer,
+    ChangePasswordSerializer,
     LoginSerializer,
     MeSerializer,
     PublicProfileSerializer,
@@ -87,6 +89,34 @@ def remove_follower(request, username):
             {'error': 'Ese usuario no te sigue'},
             status=status.HTTP_404_NOT_FOUND,
         )
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def toggle_privacy(request):
+    user = request.user
+    user.is_private = not user.is_private
+    user.save(update_fields=['is_private'])
+    return Response({'is_private': user.is_private})
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def change_password(request):
+    serializer = ChangePasswordSerializer(
+        data=request.data, context={'request': request}
+    )
+    serializer.is_valid(raise_exception=True)
+    request.user.set_password(serializer.validated_data['new_password'])
+    request.user.save(update_fields=['password'])
+    return Response({'detail': 'Contraseña actualizada correctamente.'})
+
+
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def delete_account(request):
+    request.user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
