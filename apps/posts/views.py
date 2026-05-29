@@ -91,10 +91,32 @@ class UserPostsView(generics.ListAPIView):
 
     def get_queryset(self):
         visible = get_visible_users(self.request.user)
-        return Post.objects.filter(
-            author__username=self.kwargs['username'],
+        username = self.kwargs['username']
+        tab = self.request.query_params.get('tab', 'posts')
+
+        if tab == 'likes':
+            liked_post_ids = Like.objects.filter(
+                user__username=username,
+            ).values('post_id')
+            return Post.objects.filter(
+                id__in=liked_post_ids,
+                parent__isnull=True,
+                author__in=visible,
+            ).select_related('author')
+
+        qs = Post.objects.filter(
+            author__username=username,
             author__in=visible,
         ).select_related('author')
+
+        if tab == 'posts':
+            qs = qs.filter(parent__isnull=True, shared_post__isnull=True)
+        elif tab == 'reposts':
+            qs = qs.filter(shared_post__isnull=False)
+        elif tab == 'comments':
+            qs = qs.filter(parent__isnull=False)
+
+        return qs
 
 
 class PostRepliesView(generics.ListCreateAPIView):

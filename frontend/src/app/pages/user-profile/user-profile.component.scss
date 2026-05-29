@@ -265,6 +265,34 @@
   white-space: nowrap;
 }
 
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border, #333);
+  margin-bottom: 1rem;
+  gap: 0;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted, #888);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--neon, #00ff41);
+  }
+
+  &--active {
+    color: var(--neon, #00ff41);
+    border-bottom-color: var(--neon, #00ff41);
+  }
+}
+
 .follow-btn, .edit-btn {
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -294,6 +322,12 @@
 
 .post {
   margin-bottom: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--neon-dim, #1faa07);
+  }
 }
 
 .post__head {
