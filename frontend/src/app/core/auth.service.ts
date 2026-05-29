@@ -29,7 +29,7 @@ const REFRESH_KEY = 'auth.refresh';
 const USER_KEY = 'auth.user';
 
 function loadStoredUser(): CurrentUser | null {
-  const raw = localStorage.getItem(USER_KEY);
+  const raw = sessionStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as CurrentUser;
@@ -62,27 +62,27 @@ export class AuthService {
   fetchMe(): Observable<CurrentUser> {
     return this.http.get<CurrentUser>(`${environment.apiUrl}/me/`).pipe(
       tap((user) => {
-        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        sessionStorage.setItem(USER_KEY, JSON.stringify(user));
         this._user.set(user);
       }),
     );
   }
 
   logout(): void {
-    localStorage.removeItem(ACCESS_KEY);
-    localStorage.removeItem(REFRESH_KEY);
-    localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(ACCESS_KEY);
+    sessionStorage.removeItem(REFRESH_KEY);
+    sessionStorage.removeItem(USER_KEY);
     this._user.set(null);
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_KEY);
+    return sessionStorage.getItem(ACCESS_KEY);
   }
 
   private persist(res: AuthResponse): void {
-    localStorage.setItem(ACCESS_KEY, res.tokens.access);
-    localStorage.setItem(REFRESH_KEY, res.tokens.refresh);
-    localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+    sessionStorage.setItem(ACCESS_KEY, res.tokens.access);
+    sessionStorage.setItem(REFRESH_KEY, res.tokens.refresh);
+    sessionStorage.setItem(USER_KEY, JSON.stringify(res.user));
     this._user.set(res.user);
   }
 }

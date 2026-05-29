@@ -20,7 +20,7 @@
           <a [routerLink]="['/users', n.actor_username]"><strong>{{ '@' + n.actor_username }}</strong></a>
           {{ verbLabel(n.verb) }}
           @if (n.target_post) {
-            <a [routerLink]="['/']" class="notif__post-link">ver post</a>
+            <a [routerLink]="['/post', n.target_post]" class="notif__post-link">ver post</a>
           }
           <time>{{ n.created_at | date:'short' }}</time>
         </div>

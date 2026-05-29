@@ -6,14 +6,13 @@
   <div class="search__bar">
     <input
       type="text"
-      [(ngModel)]="query"
-      (keyup.enter)="search()"
-      placeholder="Buscar usuarios..."
+      [ngModel]="query()"
+      (ngModelChange)="onQueryChange($event)"
+      (keyup.enter)="onKeyupEnter()"
+      placeholder="Buscar posts, hashtags o usuarios..."
     />
-    <button (click)="search()" [disabled]="!query.trim() || searching()">
-      @if (searching()) {
-        Buscando…
-      } @else {
+    <button (click)="search()" [disabled]="!query().trim() || searching()">
+      @if (searching()) { Buscando… } @else {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Buscar
       }
@@ -21,25 +20,106 @@
   </div>
 
   @if (searched()) {
+    <nav class="tabs">
+      <button class="tab" [class.tab--active]="activeTab() === 'posts'" (click)="setTab('posts')">Posts ({{ posts().length }})</button>
+      <button class="tab" [class.tab--active]="activeTab() === 'hashtags'" (click)="setTab('hashtags')">Hashtags ({{ hashtags().length }})</button>
+      <button class="tab" [class.tab--active]="activeTab() === 'users'" (click)="setTab('users')">Cuentas ({{ users().length }})</button>
+    </nav>
+
     <div class="search__results">
-      @for (user of results(); track user.username) {
-        <a class="user-card" [routerLink]="['/users', user.username]">
-          <div class="user-card__avatar">
-            @if (user.avatar_url) {
-              <img [src]="user.avatar_url" alt="" />
-            } @else {
-              <div class="placeholder">{{ '@' + user.username[0] }}</div>
+      @if (activeTab() === 'posts') {
+        @for (p of posts(); track p.id) {
+          <article class="card post">
+            <header class="post__head">
+              <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
+              <time class="post__date">{{ p.created_at | date:'short' }}</time>
+            </header>
+            @if (p.image_url) {
+              <img class="post__img" [src]="p.image_url" alt="" />
             }
-          </div>
-          <div class="user-card__info">
-            <strong>{{ '@' + user.username }}</strong>
-            @if (user.bio) { <p>{{ user.bio }}</p> }
-            @if (user.location) { <span class="loc">📍 {{ user.location }}</span> }
-          </div>
-        </a>
-      } @empty {
-        <article class="card"><p>&gt; sin resultados</p></article>
+            <p class="post__body" [innerHTML]="p.content | formatContent"></p>
+
+            @if (p.shared_post; as sp) {
+              <article class="card shared-post" [routerLink]="['/post', sp.id]">
+                <header class="post__head">
+                  <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                  <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                </header>
+                @if (sp.image_url) {
+                  <img class="post__img" [src]="sp.image_url" alt="" />
+                }
+                <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+              </article>
+            }
+
+            <footer class="post__foot">
+              <button class="action-btn" [routerLink]="['/post', p.id]" title="Comentar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                {{ p.reply_count }}
+              </button>
+              <button class="action-btn" [class.active]="p.is_reposted" (click)="toggleRepost(p)" title="Repostear">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                {{ p.repost_count }}
+              </button>
+              <button class="action-btn like-btn" [class.liked]="p.is_liked" (click)="toggleLike(p)" title="Me gusta">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                {{ p.likes_count }}
+              </button>
+              @if (isOwnPost(p)) {
+                <button class="action-btn danger" (click)="askDelete(p)" title="Eliminar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              }
+            </footer>
+          </article>
+        } @empty {
+          <article class="card"><p>&gt; sin resultados en posts</p></article>
+        }
+      }
+
+      @if (activeTab() === 'hashtags') {
+        @for (ht of hashtags(); track ht.name) {
+          <a class="hashtag-card" [routerLink]="['/search']" [queryParams]="{ q: ht.name, tab: 'hashtags' }">
+            <strong>#{{ ht.name }}</strong>
+            <span class="hashtag-card__count">{{ ht.post_count }} publicaciones</span>
+          </a>
+        } @empty {
+          <article class="card"><p>&gt; sin resultados en hashtags</p></article>
+        }
+      }
+
+      @if (activeTab() === 'users') {
+        @for (user of users(); track user.username) {
+          <a class="user-card" [routerLink]="['/users', user.username]">
+            <div class="user-card__avatar">
+              @if (user.avatar_url) { <img [src]="user.avatar_url" alt="" /> }
+              @else { <div class="placeholder">{{ '@' + user.username[0] }}</div> }
+            </div>
+            <div class="user-card__info">
+              <strong>{{ '@' + user.username }}</strong>
+              @if (user.bio) { <p>{{ user.bio }}</p> }
+              @if (user.location) { <span class="loc">📍 {{ user.location }}</span> }
+            </div>
+          </a>
+        } @empty {
+          <article class="card"><p>&gt; sin resultados en cuentas</p></article>
+        }
       }
     </div>
   }
 </section>
+
+@if (deleteTarget(); as target) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <h3 class="confirm-modal__title">Eliminar post</h3>
+      <p class="confirm-modal__msg">¿Seguro que querés eliminar esta publicación?</p>
+      <div class="confirm-modal__actions">
+        <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="deleting()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="deleting()">
+          @if (deleting()) { Eliminando… } @else { Eliminar }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -7,6 +7,8 @@ class Notification(models.Model):
         LIKE = 'like', 'Like'
         FOLLOW = 'follow', 'Follow'
         MENTION = 'mention', 'Mencion'
+        REPLY = 'reply', 'Respuesta'
+        REPOST = 'repost', 'Reposteado'
 
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,

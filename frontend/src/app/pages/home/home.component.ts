@@ -2,21 +2,14 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
+import { FormatContentPipe } from '../../shared/format-content.pipe';
+import { Post } from '../../shared/post.types';
 
 interface AppConfig {
   site_name: string;
   post_max_chars: number;
   posts_per_page: number;
-}
-
-interface Post {
-  id: number;
-  author_username: string;
-  author_avatar: string;
-  content: string;
-  created_at: string;
-  likes_count: number;
-  is_liked: boolean;
 }
 
 interface PaginatedPosts {
@@ -29,12 +22,13 @@ interface PaginatedPosts {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterLink],
+  imports: [CommonModule, DatePipe, RouterLink, FormatContentPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
 
   private readonly apiBase = 'http://localhost:8000/api';
 
@@ -49,6 +43,9 @@ export class HomeComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   maintenance = signal(false);
+
+  deleteTarget = signal<Post | null>(null);
+  deleting = signal(false);
 
   ngOnInit(): void {
     this.http.get<AppConfig>(`${this.apiBase}/config/`).subscribe({
@@ -100,9 +97,62 @@ export class HomeComponent implements OnInit {
     const method = post.is_liked ? 'DELETE' : 'POST';
     this.http.request(method, `${this.apiBase}/posts/${post.id}/like/`, { responseType: 'text' }).subscribe({
       next: () => {
-        post.is_liked = !post.is_liked;
-        post.likes_count += post.is_liked ? 1 : -1;
+        this.posts.update(list => list.map(p =>
+          p.id === post.id
+            ? { ...p, is_liked: !p.is_liked, likes_count: p.likes_count + (p.is_liked ? -1 : 1) }
+            : p
+        ));
       },
     });
+  }
+
+  toggleRepost(post: Post): void {
+    if (post.is_reposted) {
+      this.http.delete(`${this.apiBase}/posts/${post.id}/repost/`, { responseType: 'json' }).subscribe({
+        next: () => {
+          this.posts.update(list => list.map(p =>
+            p.id === post.id ? { ...p, is_reposted: false, repost_count: p.repost_count - 1 } : p
+          ));
+        },
+      });
+    } else {
+      this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
+        next: () => {
+          this.posts.update(list => list.map(p =>
+            p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+          ));
+        },
+      });
+    }
+  }
+
+  askDelete(post: Post): void {
+    this.deleteTarget.set(post);
+  }
+
+  cancelDelete(): void {
+    if (this.deleting()) return;
+    this.deleteTarget.set(null);
+  }
+
+  confirmDelete(): void {
+    const post = this.deleteTarget();
+    if (!post) return;
+    this.deleting.set(true);
+    this.http.delete(`${this.apiBase}/posts/${post.id}/`, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.posts.update((list) => list.filter((p) => p.id !== post.id));
+        this.deleting.set(false);
+        this.deleteTarget.set(null);
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.deleteTarget.set(null);
+      },
+    });
+  }
+
+  isOwnPost(post: Post): boolean {
+    return this.auth.user()?.id === post.author;
   }
 }

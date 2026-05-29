@@ -4,12 +4,6 @@
     <p class="home__tag">// feed_principal --paginado</p>
   </header>
 
-<!--  <div class="home__meta" *ngIf="config() as cfg">
-    <span>max_chars: <b>{{ cfg.post_max_chars }}</b></span>
-    <span>per_page: <b>{{ cfg.posts_per_page }}</b></span>
-    <span>total: <b>{{ total() }}</b></span>
-  </div>-->
-
   <article class="card card--loading" *ngIf="loading()">
     <p>&gt; cargando posts...</p>
   </article>
@@ -31,14 +25,44 @@
         <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
         <time class="post__date">{{ p.created_at | date:'short' }}</time>
       </header>
-      <p class="post__body">{{ p.content }}</p>
+      @if (p.image_url) {
+        <img class="post__img" [src]="p.image_url" alt="" />
+      }
+      <p class="post__body" [innerHTML]="p.content | formatContent"></p>
+
+      @if (p.shared_post; as sp) {
+        <article class="card shared-post" [routerLink]="['/post', sp.id]">
+          <header class="post__head">
+            <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+            <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+          </header>
+          @if (sp.image_url) {
+            <img class="post__img" [src]="sp.image_url" alt="" />
+          }
+          <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+        </article>
+      }
+
       <footer class="post__foot">
-        <button class="like-btn" [class.liked]="p.is_liked" (click)="toggleLike(p)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="action-btn" [routerLink]="['/post', p.id]" title="Comentar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          {{ p.reply_count }}
+        </button>
+        <button class="action-btn" [class.active]="p.is_reposted" (click)="toggleRepost(p)" title="Repostear">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          {{ p.repost_count }}
+        </button>
+        <button class="action-btn like-btn" [class.liked]="p.is_liked" (click)="toggleLike(p)" title="Me gusta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           {{ p.likes_count }}
         </button>
+        @if (isOwnPost(p)) {
+          <button class="action-btn danger" (click)="askDelete(p)" title="Eliminar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        }
       </footer>
     </article>
 
@@ -60,4 +84,17 @@
   </ng-container>
 </section>
 
-
+@if (deleteTarget(); as target) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <h3 class="confirm-modal__title">Eliminar post</h3>
+      <p class="confirm-modal__msg">¿Seguro que querés eliminar esta publicación?</p>
+      <div class="confirm-modal__actions">
+        <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="deleting()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="deleting()">
+          @if (deleting()) { Eliminando… } @else { Eliminar }
+        </button>
+      </div>
+    </div>
+  </div>
+}

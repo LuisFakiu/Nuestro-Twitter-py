@@ -39,6 +39,8 @@ export class NotificationsComponent implements OnInit {
       like: 'le gustó tu post',
       follow: 'empezó a seguirte',
       mention: 'te mencionó en un post',
+      reply: 'respondió a tu post',
+      repost: 'reposteó tu post',
     };
     return labels[verb] || verb;
   }

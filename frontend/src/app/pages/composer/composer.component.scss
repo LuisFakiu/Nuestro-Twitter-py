@@ -9,7 +9,12 @@ form {
   gap: 1rem;
 }
 
+.composer__textarea-wrapper {
+  position: relative;
+}
+
 textarea {
+  width: 100%;
   background: var(--bg-soft, #111);
   border: 1px solid var(--border, #333);
   color: var(--text, #e0e0e0);
@@ -17,11 +22,111 @@ textarea {
   border-radius: 4px;
   font-family: inherit;
   resize: vertical;
+  box-sizing: border-box;
 }
 
 textarea:focus {
   outline: none;
   border-color: var(--neon, #00ff41);
+}
+
+.composer__suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  background: var(--bg-soft, #111);
+  border: 1px solid var(--border, #333);
+  border-radius: 4px;
+  z-index: 100;
+  margin-top: 4px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text, #e0e0e0);
+  font-family: inherit;
+}
+
+.suggestion-item:hover,
+.suggestion-item--selected {
+  background: var(--bg-hover, #1a1a1a);
+}
+
+.suggestion-item--hashtag {
+  justify-content: space-between;
+}
+
+.suggestion-item__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-soft, #222);
+  flex-shrink: 0;
+}
+
+.suggestion-item__avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--neon, #00ff41);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.suggestion-item__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.suggestion-item__name {
+  font-weight: bold;
+  color: var(--neon, #00ff41);
+}
+
+.suggestion-item__bio {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-item__following {
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--border, #444);
+  border-radius: 3px;
+}
+
+.suggestion-item__hashtag {
+  font-weight: bold;
+  color: #1da1f2;
+}
+
+.suggestion-item__count {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
 }
 
 .composer__info {
@@ -34,7 +139,21 @@ textarea:focus {
   font-size: 0.85rem;
 }
 
-button {
+input[type="url"] {
+  background: var(--bg-soft, #111);
+  border: 1px solid var(--border, #333);
+  color: var(--text, #e0e0e0);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+input[type="url"]:focus {
+  outline: none;
+  border-color: var(--neon, #00ff41);
+}
+
+button[type="submit"] {
   align-self: flex-end;
   background: var(--neon, #00ff41);
   color: #000;
