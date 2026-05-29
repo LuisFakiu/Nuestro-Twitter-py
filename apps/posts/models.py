@@ -20,6 +20,7 @@ class Post(models.Model):
         'self', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='reposters',
     )
+    quoted_post_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -28,6 +29,12 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.author}: {self.content[:30] or "(repost)"}'
+
+    def delete(self, *args, **kwargs):
+        Post.objects.filter(shared_post=self).update(
+            quoted_post_deleted=True, shared_post=None
+        )
+        super().delete(*args, **kwargs)
 
 
 class Like(models.Model):

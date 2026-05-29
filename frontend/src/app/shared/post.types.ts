@@ -7,6 +7,7 @@ export interface Post {
   image_url?: string;
   parent_id?: number | null;
   shared_post?: SharedPost | null;
+  quoted_post_deleted?: boolean;
   created_at: string;
   updated_at: string;
   likes_count: number;

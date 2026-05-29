@@ -30,6 +30,7 @@ class PostSerializer(serializers.ModelSerializer):
             'image_url',
             'parent_id',
             'shared_post',
+            'quoted_post_deleted',
             'created_at',
             'updated_at',
             'likes_count',
@@ -72,10 +73,10 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.parent_id is not None
 
     def get_is_repost(self, obj):
-        return obj.shared_post_id is not None and not obj.content
+        return (obj.shared_post_id is not None or obj.quoted_post_deleted) and not obj.content
 
     def get_is_quote(self, obj):
-        return obj.shared_post_id is not None and bool(obj.content)
+        return (obj.shared_post_id is not None or obj.quoted_post_deleted) and bool(obj.content)
 
     def get_shared_post(self, obj):
         if not obj.shared_post_id:
