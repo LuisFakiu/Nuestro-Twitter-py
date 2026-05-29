@@ -79,7 +79,11 @@
       </form>
     }
 
-    <div class="divider"><span>o</span></div>
-    <div id="googleBtn" class="google-btn"></div>
+    @if (googleReady()) {
+      <div class="divider"><span>o</span></div>
+      <button type="button" class="google-btn" (click)="signInWithGoogle()" [disabled]="loading()">
+        Continuar con Google
+      </button>
+    }
   </div>
 </div>

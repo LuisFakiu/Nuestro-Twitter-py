@@ -50,28 +50,59 @@ def _auth_response(user):
     })
 
 
+GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token'
+
+
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def google_login(request):
-    """Login con Google: recibe el ID token (credential) de GIS, lo verifica y emite JWT."""
-    credential = request.data.get('credential')
-    if not credential:
-        return Response({'detail': 'Falta el credential de Google.'},
+    """Login con Google (flujo authorization code).
+
+    El front manda el `code` que devuelve GIS. El backend lo canjea contra Google
+    usando client_id + client_secret, obtiene el id_token, lo verifica y emite JWT.
+    """
+    code = request.data.get('code')
+    if not code:
+        return Response({'detail': 'Falta el code de Google.'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    if not settings.GOOGLE_OAUTH_CLIENT_ID:
+    if not settings.GOOGLE_OAUTH_CLIENT_ID or not settings.GOOGLE_OAUTH_CLIENT_SECRET:
         return Response({'detail': 'Login con Google no esta configurado en el servidor.'},
                         status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    import requests as http_requests
     from google.auth.transport import requests as google_requests
     from google.oauth2 import id_token
 
+    # 1. Canjear el code por tokens (aca se usa el client_secret).
+    try:
+        token_resp = http_requests.post(GOOGLE_TOKEN_ENDPOINT, data={
+            'code': code,
+            'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
+            'client_secret': settings.GOOGLE_OAUTH_CLIENT_SECRET,
+            'redirect_uri': 'postmessage',  # valor especial para popup de GIS
+            'grant_type': 'authorization_code',
+        }, timeout=10)
+    except http_requests.RequestException:
+        return Response({'detail': 'No se pudo contactar a Google.'},
+                        status=status.HTTP_502_BAD_GATEWAY)
+
+    if token_resp.status_code != 200:
+        return Response({'detail': 'Code de Google invalido o expirado.'},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    id_token_str = token_resp.json().get('id_token')
+    if not id_token_str:
+        return Response({'detail': 'Google no devolvio id_token.'},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    # 2. Verificar el id_token y extraer datos del usuario.
     try:
         info = id_token.verify_oauth2_token(
-            credential, google_requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID,
+            id_token_str, google_requests.Request(), settings.GOOGLE_OAUTH_CLIENT_ID,
         )
     except ValueError:
-        return Response({'detail': 'Token de Google invalido.'},
+        return Response({'detail': 'id_token de Google invalido.'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
     email = info.get('email')

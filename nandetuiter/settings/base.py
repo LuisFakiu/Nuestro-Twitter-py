@@ -112,8 +112,9 @@ LOGGING = {
     },
 }
 
-# Google OAuth (login con Google). Client ID publico, no es secreto.
+# Google OAuth (login con Google, flujo authorization code).
 GOOGLE_OAUTH_CLIENT_ID = config('GOOGLE_OAUTH_CLIENT_ID', default='')
+GOOGLE_OAUTH_CLIENT_SECRET = config('GOOGLE_OAUTH_CLIENT_SECRET', default='')
 
 # Django REST Framework
 REST_FRAMEWORK = {
