@@ -15,17 +15,20 @@
 *apartado de configuraciones + cuenta privada o publica + cambiar contraseña + eliminar cuenta + cuentas bloqueadas
 *citar post + agregar imagen + "poat no disponible" cuando se borra el post citado
 *foto de perfil visible en el feed
+*post/repost/comentarios/likes separados dentro de "mi perfil"
+*vista de "usuario con cuenta privada" al inspeccionar un perfil ajeno + aun ver su conteo de posts, seguidores y seguidos
+*aceptar o rechazar solicitud de follow si tu perfil es privado, quitar aceptacion automatica
 
 
-que el usuario tenga nombre 
+que el usuario tenga nombre aparte de su @
 los comentarios aun no pueden ser respondidos
 que el creador del post pueda limitar los comentarios
 separar notificaciones en "todos" y "menciones"
 guardar posts y lista de elementos guardados y mis me gusta
 feed algoritmico + separar feed en "para ti" y "siguiendo"
 mensajes directos
-
-
+transiciones al cambiar de vista o recargar feed
+gmail obligatorio en register y mensaje de error
 
 
 
