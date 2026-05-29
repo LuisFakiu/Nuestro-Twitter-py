@@ -1,0 +1,95 @@
+<section class="settings">
+  <header class="settings__header">
+    <h1>&gt; configuraciones</h1>
+  </header>
+
+  <div class="settings__sections">
+
+    <!-- Privacidad -->
+    <div class="card">
+      <h2>Privacidad de la cuenta</h2>
+      <p class="card__desc">
+        @if (isPrivate()) {
+          Tu cuenta es <strong>privada</strong>. Solo tus seguidores pueden ver tus posts.
+        } @else {
+          Tu cuenta es <strong>pública</strong>. Cualquier persona puede ver tus posts.
+        }
+      </p>
+      <button class="toggle-btn" [class.active]="isPrivate()" (click)="togglePrivacy()" [disabled]="togglingPrivacy()">
+        <span class="toggle-slider"></span>
+        <span>{{ togglingPrivacy() ? 'Cambiando...' : isPrivate() ? 'Cuenta privada' : 'Cuenta pública' }}</span>
+      </button>
+    </div>
+
+    <!-- Cambiar contraseña -->
+    <div class="card">
+      <h2>Cambiar contraseña</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="settings__form">
+        <label>
+          <span>Contraseña actual</span>
+          <input type="password" formControlName="old_password" />
+        </label>
+        <label>
+          <span>Nueva contraseña</span>
+          <input type="password" formControlName="new_password" />
+        </label>
+        @if (passwordError()) {
+          <p class="error">{{ passwordError() }}</p>
+        }
+        @if (passwordSuccess()) {
+          <p class="success">Contraseña actualizada correctamente</p>
+        }
+        <button type="submit" class="btn" [disabled]="passwordForm.invalid || changingPassword()">
+          {{ changingPassword() ? 'Cambiando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Cuentas bloqueadas -->
+    <div class="card">
+      <h2>Cuentas bloqueadas</h2>
+      @if (loadingBlocked()) {
+        <p class="muted">&gt; cargando...</p>
+      } @else if (blockedUsers().length === 0) {
+        <p class="muted">No tienes cuentas bloqueadas.</p>
+      } @else {
+        <div class="blocked-list">
+          @for (user of blockedUsers(); track user.id) {
+            <div class="blocked-item">
+              <div class="blocked-item__info">
+                @if (user.blocked_avatar) {
+                  <img [src]="user.blocked_avatar" alt="" class="avatar" />
+                } @else {
+                  <div class="avatar avatar--placeholder"></div>
+                }
+                <span class="blocked-item__name">&#64;{{ user.blocked_username }}</span>
+              </div>
+              <button class="btn btn--small" (click)="unblockUser(user.blocked)" [disabled]="unblockingId() === user.blocked">
+                {{ unblockingId() === user.blocked ? '...' : 'Desbloquear' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Eliminar cuenta -->
+    <div class="card card--danger">
+      <h2>Eliminar cuenta</h2>
+      <p class="card__desc">
+        Esta acción es irreversible. Se eliminarán todos tus datos, posts, likes y follows.
+      </p>
+      <label>
+        <span>Escribe <strong>CONFIRMAR</strong> para eliminar tu cuenta</span>
+        <input type="text" [ngModel]="deleteConfirm()" (ngModelChange)="deleteConfirm.set($event)" [disabled]="deleting()" />
+      </label>
+      @if (deleteError()) {
+        <p class="error">{{ deleteError() }}</p>
+      }
+      <button class="btn btn--danger" (click)="deleteAccount()" [disabled]="deleteConfirm() !== 'CONFIRMAR' || deleting()">
+        {{ deleting() ? 'Eliminando...' : 'Eliminar mi cuenta' }}
+      </button>
+    </div>
+
+  </div>
+</section>
