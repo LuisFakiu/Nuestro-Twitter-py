@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
+import { environment } from '../../../environments/environment';
 
 type Tab = 'posts' | 'hashtags' | 'users';
 
@@ -35,7 +36,7 @@ export class SearchComponent implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
 
-  private readonly apiBase = 'http://localhost:8000/api';
+  private readonly apiBase = environment.apiUrl;
 
   query = signal('');
   activeTab = signal<Tab>('posts');

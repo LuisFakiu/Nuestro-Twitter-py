@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://nuestro-twitter-py.onrender.com/api',
+  production: false,
+  apiUrl: 'http://localhost:8000/api',
   googleClientId: 'TU_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
 };

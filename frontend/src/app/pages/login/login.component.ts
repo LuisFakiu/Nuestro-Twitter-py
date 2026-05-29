@@ -1,9 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, NgZone, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { environment } from '../../../environments/environment';
 
 type Mode = 'login' | 'register';
+
+declare const google: any;
 
 @Component({
   selector: 'app-login',
@@ -12,10 +15,11 @@ type Mode = 'login' | 'register';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private zone = inject(NgZone);
 
   mode = signal<Mode>('login');
   loading = signal(false);
@@ -32,6 +36,62 @@ export class LoginComponent {
     email: ['', [Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  ngAfterViewInit(): void {
+    this.loadGoogleScript().then(() => this.renderGoogleButton());
+  }
+
+  private loadGoogleScript(): Promise<void> {
+    return new Promise((resolve) => {
+      if (typeof google !== 'undefined' && google.accounts) {
+        resolve();
+        return;
+      }
+      const existing = document.getElementById('gsi-script');
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'gsi-script';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      document.head.appendChild(script);
+    });
+  }
+
+  private renderGoogleButton(): void {
+    if (typeof google === 'undefined' || !google.accounts) return;
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (resp: { credential: string }) => this.handleGoogleCredential(resp.credential),
+    });
+    const container = document.getElementById('googleBtn');
+    if (container) {
+      google.accounts.id.renderButton(container, {
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        width: 280,
+      });
+    }
+  }
+
+  private handleGoogleCredential(credential: string): void {
+    this.zone.run(() => {
+      this.loading.set(true);
+      this.error.set(null);
+      this.auth.googleLogin(credential).subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (err) => {
+          this.error.set(err?.error?.detail ?? 'Error al iniciar con Google');
+          this.loading.set(false);
+        },
+      });
+    });
+  }
 
   setMode(m: Mode): void {
     this.mode.set(m);

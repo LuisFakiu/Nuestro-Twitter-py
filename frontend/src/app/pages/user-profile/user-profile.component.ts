@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
+import { environment } from '../../../environments/environment';
 
 interface PublicProfile {
   username: string;
@@ -38,7 +39,7 @@ export class UserProfileComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
-  private readonly apiBase = 'http://localhost:8000/api';
+  private readonly apiBase = environment.apiUrl;
 
   profile = signal<PublicProfile | null>(null);
   posts = signal<Post[]>([]);

@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-post-detail',
@@ -19,7 +20,7 @@ export class PostDetailComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
-  private readonly apiBase = 'http://localhost:8000/api';
+  private readonly apiBase = environment.apiUrl;
 
   post = signal<Post | null>(null);
   replies = signal<Post[]>([]);

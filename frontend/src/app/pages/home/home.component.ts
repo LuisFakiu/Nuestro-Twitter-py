@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
+import { environment } from '../../../environments/environment';
 
 interface AppConfig {
   site_name: string;
@@ -30,7 +31,7 @@ export class HomeComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
-  private readonly apiBase = 'http://localhost:8000/api';
+  private readonly apiBase = environment.apiUrl;
 
   config = signal<AppConfig | null>(null);
   posts = signal<Post[]>([]);

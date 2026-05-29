@@ -134,4 +134,27 @@
     text-align: center;
     text-shadow: 0 0 6px rgba(255, 77, 77, 0.5);
   }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  }
+
+  .google-btn {
+    display: flex;
+    justify-content: center;
+  }
 }
