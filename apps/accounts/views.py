@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import BlockedUser, Follow, User
+from .models import BlockedUser, Follow, FollowRequest, User
 from .utils import can_view_profile, is_blocked_by
 from .serializers import (
     BlockedUserSerializer,
@@ -150,13 +150,6 @@ class PublicProfileView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not can_view_profile(request, instance):
-            serializer = PublicProfileSerializer(
-                instance, context={'request': request}
-            )
-            data = serializer.data
-            data['posts_count'] = 0
-            return Response(data)
         return super().retrieve(request, *args, **kwargs)
 
 
@@ -181,6 +174,19 @@ def follow_user(request, username):
                 {'error': 'Tienes bloqueado a este usuario'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        existing_request = FollowRequest.objects.filter(
+            follower=request.user, following=target
+        ).first()
+        if existing_request:
+            return Response(
+                {'error': 'Ya enviaste una solicitud a este usuario'},
+                status=status.HTTP_409_CONFLICT,
+            )
+        if target.is_private:
+            FollowRequest.objects.create(
+                follower=request.user, following=target
+            )
+            return Response(status=status.HTTP_201_CREATED)
         _, created = Follow.objects.get_or_create(
             follower=request.user, following=target
         )
@@ -192,6 +198,11 @@ def follow_user(request, username):
         return Response(status=status.HTTP_201_CREATED)
 
     elif request.method == 'DELETE':
+        deleted_req, _ = FollowRequest.objects.filter(
+            follower=request.user, following=target
+        ).delete()
+        if deleted_req:
+            return Response(status=status.HTTP_204_NO_CONTENT)
         deleted, _ = Follow.objects.filter(
             follower=request.user, following=target
         ).delete()
@@ -200,6 +211,40 @@ def follow_user(request, username):
                 {'error': 'No sigues a este usuario'},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def pending_follow_requests(request):
+    requests_qs = FollowRequest.objects.filter(
+        following=request.user
+    ).select_related('follower')
+    data = [{
+        'id': req.id,
+        'username': req.follower.username,
+        'avatar_url': req.follower.avatar_url,
+        'bio': req.follower.bio,
+        'created_at': req.created_at,
+    } for req in requests_qs]
+    return Response(data)
+
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def handle_follow_request(request, username):
+    follower = get_object_or_404(User, username=username)
+    follow_request = get_object_or_404(
+        FollowRequest, follower=follower, following=request.user
+    )
+
+    if request.method == 'POST':
+        Follow.objects.create(follower=follower, following=request.user)
+        follow_request.delete()
+        return Response(status=status.HTTP_201_CREATED)
+
+    elif request.method == 'DELETE':
+        follow_request.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

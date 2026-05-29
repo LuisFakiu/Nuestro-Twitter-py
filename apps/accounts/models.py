@@ -37,6 +37,30 @@ class Follow(models.Model):
         return f'{self.follower} -> {self.following}'
 
 
+class FollowRequest(models.Model):
+    follower = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follow_requests_sent'
+    )
+    following = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follow_requests_received'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['follower', 'following'], name='unique_follow_request'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(follower=models.F('following')),
+                name='no_self_follow_request',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.follower} solicita seguir a {self.following}'
+
+
 class BlockedUser(models.Model):
     blocker = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='blocked_users'

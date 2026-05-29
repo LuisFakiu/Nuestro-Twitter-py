@@ -313,11 +313,80 @@
   color: var(--neon, #00ff41);
 }
 
+.follow-btn.pending {
+  background: transparent;
+  border: 1px solid var(--text-muted, #888);
+  color: var(--text-muted, #888);
+  cursor: default;
+
+  &:hover {
+    border-color: #ff5555;
+    color: #ff5555;
+    cursor: pointer;
+  }
+}
+
 .edit-btn {
   background: transparent;
   border: 1px solid var(--border, #333);
   color: var(--text, #e0e0e0);
   text-decoration: none;
+}
+
+.card--private {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.private-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted, #888);
+
+  svg { opacity: 0.5; }
+
+  h2 {
+    color: var(--text, #e0e0e0);
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.request-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid var(--border, #333);
+  background: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--accept {
+    color: var(--neon, #00ff41);
+    &:hover { background: rgba(0, 255, 65, 0.1); border-color: var(--neon, #00ff41); }
+  }
+
+  &--reject {
+    color: #ff5555;
+    &:hover { background: rgba(255, 85, 85, 0.1); border-color: #ff5555; }
+  }
 }
 
 .post {

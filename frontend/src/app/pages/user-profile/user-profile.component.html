@@ -23,6 +23,11 @@
         </p>
         <div class="stats">
           <span><strong>{{ p.posts_count }}</strong> posts</span>
+          @if (isOwnProfile() && p.is_private) {
+            <button type="button" class="stat-btn" (click)="openRequestsModal()">
+              solicitudes
+            </button>
+          }
           <button type="button" class="stat-btn" (click)="openFollowModal('followers')">
             <strong>{{ p.followers_count }}</strong> seguidores
           </button>
@@ -33,8 +38,8 @@
       </div>
       @if (!isOwnProfile()) {
         <div class="profile-actions">
-          <button class="follow-btn" [class.following]="p.is_following" (click)="toggleFollow()" [disabled]="followLoading()">
-            {{ p.is_following ? 'Dejar de seguir' : 'Seguir' }}
+          <button class="follow-btn" [class.following]="p.is_following" [class.pending]="p.is_pending_follow" (click)="toggleFollow()" [disabled]="followLoading()">
+            {{ p.is_pending_follow ? 'Solicitud enviada' : (p.is_following ? 'Dejar de seguir' : 'Seguir') }}
           </button>
           <button class="block-btn" [class.blocked]="p.is_blocked" (click)="blockUser()">
             {{ p.is_blocked ? 'Desbloquear' : 'Bloquear' }}
@@ -45,79 +50,89 @@
       }
     </header>
 
-    <nav class="tabs">
-      <button type="button" class="tab" [class.tab--active]="activeTab() === 'posts'" (click)="switchTab('posts')">Posts</button>
-      <button type="button" class="tab" [class.tab--active]="activeTab() === 'reposts'" (click)="switchTab('reposts')">Reposts</button>
-      <button type="button" class="tab" [class.tab--active]="activeTab() === 'comments'" (click)="switchTab('comments')">Comentarios</button>
-      @if (isOwnProfile()) {
-        <button type="button" class="tab" [class.tab--active]="activeTab() === 'likes'" (click)="switchTab('likes')">Likes</button>
-      }
-    </nav>
+    @if (p.is_private && !isOwnProfile() && !p.is_following) {
+      <article class="card card--private">
+        <div class="private-notice">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <h2>Esta cuenta es privada</h2>
+          <p>Seguí a esta cuenta para ver sus posts.</p>
+        </div>
+      </article>
+    } @else {
+      <nav class="tabs">
+        <button type="button" class="tab" [class.tab--active]="activeTab() === 'posts'" (click)="switchTab('posts')">Posts</button>
+        <button type="button" class="tab" [class.tab--active]="activeTab() === 'reposts'" (click)="switchTab('reposts')">Reposts</button>
+        <button type="button" class="tab" [class.tab--active]="activeTab() === 'comments'" (click)="switchTab('comments')">Comentarios</button>
+        @if (isOwnProfile()) {
+          <button type="button" class="tab" [class.tab--active]="activeTab() === 'likes'" (click)="switchTab('likes')">Likes</button>
+        }
+      </nav>
 
-    <div class="posts-list">
-      @for (post of posts(); track post.id) {
-        <article class="card post" (click)="goToPost(post, $event)">
-          @if (post.image_url) {
-            <img class="post__img" [src]="post.image_url" alt="" />
-          }
-          <p class="post__body" [innerHTML]="post.content | formatContent"></p>
+      <div class="posts-list">
+        @for (post of posts(); track post.id) {
+          <article class="card post" (click)="goToPost(post, $event)">
+            @if (post.image_url) {
+              <img class="post__img" [src]="post.image_url" alt="" />
+            }
+            <p class="post__body" [innerHTML]="post.content | formatContent"></p>
 
-          @if (post.quoted_post_deleted) {
-            <article class="card shared-post shared-post--deleted">
-              <p class="shared-post__deleted-msg">Post no disponible</p>
-            </article>
-          } @else {
-            @if (post.shared_post; as sp) {
-              <article class="card shared-post" [routerLink]="['/post', sp.id]">
-              <header class="post__head">
-                <div class="post__author-wrap">
-                  <a class="post__avatar-link" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">
-                    @if (sp.author_avatar) {
-                      <img class="post__avatar" [src]="sp.author_avatar" alt="" />
-                    } @else {
-                      <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
-                    }
-                  </a>
-                  <div class="post__author-meta">
-                    <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
-                    <time class="post__date">{{ sp.created_at | date:'short' }}</time>
-                  </div>
-                </div>
-              </header>
-                @if (sp.image_url) {
-                  <img class="post__img" [src]="sp.image_url" alt="" />
-                }
-                <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+            @if (post.quoted_post_deleted) {
+              <article class="card shared-post shared-post--deleted">
+                <p class="shared-post__deleted-msg">Post no disponible</p>
               </article>
+            } @else {
+              @if (post.shared_post; as sp) {
+                <article class="card shared-post" [routerLink]="['/post', sp.id]">
+                <header class="post__head">
+                  <div class="post__author-wrap">
+                    <a class="post__avatar-link" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">
+                      @if (sp.author_avatar) {
+                        <img class="post__avatar" [src]="sp.author_avatar" alt="" />
+                      } @else {
+                        <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
+                      }
+                    </a>
+                    <div class="post__author-meta">
+                      <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                      <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                    </div>
+                  </div>
+                </header>
+                  @if (sp.image_url) {
+                    <img class="post__img" [src]="sp.image_url" alt="" />
+                  }
+                  <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+                </article>
+              }
             }
-          }
 
-          <footer class="post__foot">
-            <button class="action-btn" [routerLink]="['/post', post.id]" title="Comentar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              {{ post.reply_count }}
-            </button>
-            <button class="action-btn" [class.active]="post.is_repost || post.is_reposted" (click)="toggleRepost(post)" title="Repostear">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-              {{ post.is_repost ? (post.shared_post?.repost_count ?? 0) : post.repost_count }}
-            </button>
-            <button class="action-btn like-btn" [class.liked]="post.is_liked" (click)="toggleLike(post)" title="Me gusta">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              {{ post.likes_count }}
-            </button>
-            @if (isOwnPost(post)) {
-              <button class="action-btn danger" (click)="askDelete(post)" title="Eliminar">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <footer class="post__foot">
+              <button class="action-btn" [routerLink]="['/post', post.id]" title="Comentar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                {{ post.reply_count }}
               </button>
-            }
-          </footer>
-        </article>
-      } @empty {
-        <article class="card"><p>&gt; {{ emptyMessage() }}</p></article>
-      }
-    </div>
+              <button class="action-btn" [class.active]="post.is_repost || post.is_reposted" (click)="toggleRepost(post)" title="Repostear">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                {{ post.is_repost ? (post.shared_post?.repost_count ?? 0) : post.repost_count }}
+              </button>
+              <button class="action-btn like-btn" [class.liked]="post.is_liked" (click)="toggleLike(post)" title="Me gusta">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                {{ post.likes_count }}
+              </button>
+              @if (isOwnPost(post)) {
+                <button class="action-btn danger" (click)="askDelete(post)" title="Eliminar">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              }
+            </footer>
+          </article>
+        } @empty {
+          <article class="card"><p>&gt; {{ emptyMessage() }}</p></article>
+        }
+      </div>
+    }
   } @else {
     @if (loading()) {
       <article class="card card--loading"><p>&gt; cargando...</p></article>
@@ -215,6 +230,46 @@
           <button type="button" class="btn-danger" (click)="confirmAction()" [disabled]="actionLoading()">
             @if (actionLoading()) { Procesando... } @else { {{ target.action === 'remove' ? 'Quitar' : 'Dejar de seguir' }} }
           </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (requestsModalOpen()) {
+    <div class="follow-modal-backdrop" (click)="closeRequestsModal()">
+      <div class="follow-modal" (click)="$event.stopPropagation()">
+        <header class="follow-modal__head">
+          <h2>Solicitudes de seguimiento</h2>
+          <button class="follow-modal__close" type="button" (click)="closeRequestsModal()" aria-label="Cerrar">×</button>
+        </header>
+        <div class="follow-modal__body">
+          @if (requestsLoading()) {
+            <p class="follow-modal__msg">&gt; cargando...</p>
+          } @else if (pendingRequests().length === 0) {
+            <p class="follow-modal__msg">&gt; sin solicitudes pendientes.</p>
+          } @else {
+            <ul class="follow-list">
+              @for (req of pendingRequests(); track req.id) {
+                <li class="follow-list__item follow-list__item--row">
+                  <a [routerLink]="['/users', req.username]" (click)="closeRequestsModal()" class="follow-list__link">
+                    @if (req.avatar_url) {
+                      <img [src]="req.avatar_url" alt="avatar" class="follow-list__avatar" />
+                    } @else {
+                      <div class="follow-list__avatar avatar-placeholder">{{ '@' + req.username[0] }}</div>
+                    }
+                    <div class="follow-list__meta">
+                      <strong>{{ '@' + req.username }}</strong>
+                      @if (req.bio) { <span class="follow-list__bio">{{ req.bio }}</span> }
+                    </div>
+                  </a>
+                  <div class="request-actions">
+                    <button type="button" class="request-btn request-btn--accept" (click)="acceptRequest(req)" title="Aceptar">✓</button>
+                    <button type="button" class="request-btn request-btn--reject" (click)="rejectRequest(req)" title="Rechazar">×</button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
         </div>
       </div>
     </div>

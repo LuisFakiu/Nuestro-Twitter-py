@@ -13,11 +13,13 @@ interface PublicProfile {
   bio: string;
   avatar_url: string;
   location: string;
+  is_private: boolean;
   date_joined: string;
   followers_count: number;
   following_count: number;
   posts_count: number;
   is_following: boolean;
+  is_pending_follow: boolean;
   is_blocked: boolean;
 }
 
@@ -25,6 +27,14 @@ interface FollowUser {
   username: string;
   avatar_url: string;
   bio: string;
+}
+
+interface FollowRequestUser {
+  id: number;
+  username: string;
+  avatar_url: string;
+  bio: string;
+  created_at: string;
 }
 
 type FollowModalMode = 'followers' | 'following' | null;
@@ -59,6 +69,10 @@ export class UserProfileComponent implements OnInit {
 
   actionTarget = signal<{ user: FollowUser; action: 'remove' | 'unfollow' } | null>(null);
   actionLoading = signal(false);
+
+  requestsModalOpen = signal(false);
+  pendingRequests = signal<FollowRequestUser[]>([]);
+  requestsLoading = signal(false);
 
   deleteTarget = signal<Post | null>(null);
   deleting = signal(false);
@@ -126,10 +140,14 @@ export class UserProfileComponent implements OnInit {
     const p = this.profile();
     if (!p) return;
     this.followLoading.set(true);
-    const method = p.is_following ? 'DELETE' : 'POST';
+    const method = p.is_following || p.is_pending_follow ? 'DELETE' : 'POST';
     this.http.request(method, `${this.apiBase}/users/${p.username}/follow/`, { responseType: 'text' }).subscribe({
       next: () => {
-        this.profile.set({ ...p, is_following: !p.is_following });
+        if (method === 'POST') {
+          this.profile.set({ ...p, is_pending_follow: p.is_private, is_following: !p.is_private });
+        } else {
+          this.profile.set({ ...p, is_following: false, is_pending_follow: false });
+        }
         this.followLoading.set(false);
       },
       error: () => (this.followLoading.set(false)),
@@ -296,6 +314,39 @@ export class UserProfileComponent implements OnInit {
   closeFollowModal(): void {
     this.followModalMode.set(null);
     this.followList.set([]);
+  }
+
+  openRequestsModal(): void {
+    this.requestsModalOpen.set(true);
+    this.pendingRequests.set([]);
+    this.requestsLoading.set(true);
+    this.http.get<FollowRequestUser[]>(`${this.apiBase}/me/follow-requests/`).subscribe({
+      next: (res) => this.pendingRequests.set(res || []),
+      error: () => {},
+      complete: () => this.requestsLoading.set(false),
+    });
+  }
+
+  closeRequestsModal(): void {
+    this.requestsModalOpen.set(false);
+    this.pendingRequests.set([]);
+  }
+
+  acceptRequest(req: FollowRequestUser): void {
+    this.http.post(`${this.apiBase}/users/${req.username}/handle-follow-request/`, {}, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.pendingRequests.update(list => list.filter(r => r.id !== req.id));
+        this.profile.update(p => p ? { ...p, followers_count: p.followers_count + 1 } : p);
+      },
+    });
+  }
+
+  rejectRequest(req: FollowRequestUser): void {
+    this.http.delete(`${this.apiBase}/users/${req.username}/handle-follow-request/`, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.pendingRequests.update(list => list.filter(r => r.id !== req.id));
+      },
+    });
   }
 
   askAction(user: FollowUser, action: 'remove' | 'unfollow'): void {

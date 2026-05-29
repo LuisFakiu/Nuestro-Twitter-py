@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import BlockedUser, User
+from .models import BlockedUser, FollowRequest, User
 
 
 class MeSerializer(serializers.ModelSerializer):
@@ -70,6 +70,7 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     following_count = serializers.IntegerField(source='following_set.count', read_only=True)
     posts_count = serializers.IntegerField(source='posts.count', read_only=True)
     is_following = serializers.SerializerMethodField()
+    is_pending_follow = serializers.SerializerMethodField()
     is_blocked = serializers.SerializerMethodField()
 
     class Meta:
@@ -78,13 +79,21 @@ class PublicProfileSerializer(serializers.ModelSerializer):
             'username', 'bio', 'avatar_url', 'location',
             'is_private', 'date_joined', 'followers_count',
             'following_count', 'posts_count', 'is_following',
-            'is_blocked',
+            'is_pending_follow', 'is_blocked',
         ]
 
     def get_is_following(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.followers_set.filter(follower=request.user).exists()
+        return False
+
+    def get_is_pending_follow(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return FollowRequest.objects.filter(
+                follower=request.user, following=obj
+            ).exists()
         return False
 
     def get_is_blocked(self, obj):
