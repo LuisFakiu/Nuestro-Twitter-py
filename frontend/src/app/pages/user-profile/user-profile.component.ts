@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
@@ -29,6 +29,8 @@ interface FollowUser {
 
 type FollowModalMode = 'followers' | 'following' | null;
 
+type ProfileTab = 'posts' | 'reposts' | 'comments' | 'likes';
+
 @Component({
   selector: 'app-user-profile',
   standalone: true,
@@ -40,6 +42,7 @@ export class UserProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private router = inject(Router);
 
   private readonly apiBase = environment.apiUrl;
 
@@ -48,6 +51,7 @@ export class UserProfileComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   followLoading = signal(false);
+  activeTab = signal<ProfileTab>('posts');
 
   followModalMode = signal<FollowModalMode>(null);
   followList = signal<FollowUser[]>([]);
@@ -76,8 +80,9 @@ export class UserProfileComponent implements OnInit {
       this.posts.set([]);
       this.error.set(null);
       this.loading.set(true);
+      this.activeTab.set('posts');
       this.loadProfile(username);
-      this.loadPosts(username);
+      this.loadPosts(username, 'posts');
     });
   }
 
@@ -88,12 +93,33 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  private loadPosts(username: string): void {
-    this.http.get<any>(`${this.apiBase}/users/${username}/posts/`).subscribe({
+  private loadPosts(username: string, tab: ProfileTab): void {
+    this.loading.set(true);
+    this.http.get<any>(`${this.apiBase}/users/${username}/posts/?tab=${tab}`).subscribe({
       next: (res) => this.posts.set(res.results || []),
       error: () => {},
       complete: () => this.loading.set(false),
     });
+  }
+
+  switchTab(tab: ProfileTab): void {
+    const username = this.profile()?.username;
+    if (!username || tab === this.activeTab()) return;
+    this.activeTab.set(tab);
+    this.loadPosts(username, tab);
+  }
+
+  goToPost(post: Post, event: MouseEvent): void {
+    if ((event.target as HTMLElement).closest('button, a, .post__foot, .shared-post, .confirm-backdrop, .follow-modal-backdrop, .confirm-modal-backdrop')) {
+      return;
+    }
+    if (post.is_comment && post.parent_id) {
+      this.router.navigate(['/post', post.parent_id]);
+    } else if ((post.is_repost || post.is_quote) && post.shared_post) {
+      this.router.navigate(['/post', post.shared_post.id]);
+    } else {
+      this.router.navigate(['/post', post.id]);
+    }
   }
 
   toggleFollow(): void {
@@ -129,11 +155,15 @@ export class UserProfileComponent implements OnInit {
     const method = post.is_liked ? 'DELETE' : 'POST';
     this.http.request(method, `${this.apiBase}/posts/${post.id}/like/`, { responseType: 'text' }).subscribe({
       next: () => {
-        this.posts.update(list => list.map(p =>
-          p.id === post.id
-            ? { ...p, is_liked: !p.is_liked, likes_count: p.likes_count + (p.is_liked ? -1 : 1) }
-            : p
-        ));
+        if (method === 'DELETE' && this.activeTab() === 'likes' && this.isOwnProfile()) {
+          this.posts.update(list => list.filter(p => p.id !== post.id));
+        } else {
+          this.posts.update(list => list.map(p =>
+            p.id === post.id
+              ? { ...p, is_liked: !p.is_liked, likes_count: p.likes_count + (p.is_liked ? -1 : 1) }
+              : p
+          ));
+        }
       },
     });
   }
@@ -229,6 +259,15 @@ export class UserProfileComponent implements OnInit {
       },
       error: () => { this.deleting.set(false); this.deleteTarget.set(null); },
     });
+  }
+
+  emptyMessage(): string {
+    switch (this.activeTab()) {
+      case 'reposts': return 'sin reposts todavía.';
+      case 'comments': return 'sin comentarios todavía.';
+      case 'likes': return 'sin likes todavía.';
+      default: return 'sin posts todavía.';
+    }
   }
 
   isOwnProfile(): boolean {

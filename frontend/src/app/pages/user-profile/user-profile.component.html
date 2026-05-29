@@ -45,9 +45,18 @@
       }
     </header>
 
+    <nav class="tabs">
+      <button type="button" class="tab" [class.tab--active]="activeTab() === 'posts'" (click)="switchTab('posts')">Posts</button>
+      <button type="button" class="tab" [class.tab--active]="activeTab() === 'reposts'" (click)="switchTab('reposts')">Reposts</button>
+      <button type="button" class="tab" [class.tab--active]="activeTab() === 'comments'" (click)="switchTab('comments')">Comentarios</button>
+      @if (isOwnProfile()) {
+        <button type="button" class="tab" [class.tab--active]="activeTab() === 'likes'" (click)="switchTab('likes')">Likes</button>
+      }
+    </nav>
+
     <div class="posts-list">
       @for (post of posts(); track post.id) {
-        <article class="card post">
+        <article class="card post" (click)="goToPost(post, $event)">
           @if (post.image_url) {
             <img class="post__img" [src]="post.image_url" alt="" />
           }
@@ -106,7 +115,7 @@
           </footer>
         </article>
       } @empty {
-        <article class="card"><p>&gt; sin posts todavía.</p></article>
+        <article class="card"><p>&gt; {{ emptyMessage() }}</p></article>
       }
     </div>
   } @else {
