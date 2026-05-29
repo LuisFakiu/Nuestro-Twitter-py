@@ -75,9 +75,25 @@ def follow_user(request, username):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def remove_follower(request, username):
+    follower = get_object_or_404(User, username=username)
+    deleted, _ = Follow.objects.filter(
+        follower=follower, following=request.user
+    ).delete()
+    if not deleted:
+        return Response(
+            {'error': 'Ese usuario no te sigue'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class UserSearchView(generics.ListAPIView):
     serializer_class = PublicProfileSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
 
     def get_queryset(self):
         q = self.request.query_params.get('q', '')
@@ -85,7 +101,7 @@ class UserSearchView(generics.ListAPIView):
             return User.objects.none()
         return User.objects.filter(
             Q(username__icontains=q) | Q(bio__icontains=q)
-        )
+        )[:10]
 
 
 class FollowersListView(generics.ListAPIView):
@@ -94,7 +110,7 @@ class FollowersListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(following_set__follower=user)
+        return User.objects.filter(following_set__following=user)
 
 
 class FollowingListView(generics.ListAPIView):
@@ -103,4 +119,4 @@ class FollowingListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(followers_set__following=user)
+        return User.objects.filter(followers_set__follower=user)

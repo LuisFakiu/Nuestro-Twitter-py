@@ -1,0 +1,113 @@
+<section class="detail">
+  <header>
+    <h1>&gt; post</h1>
+  </header>
+
+  @if (loading()) {
+    <article class="card card--loading"><p>&gt; cargando...</p></article>
+  } @else if (error()) {
+    <article class="card card--error"><h2>[ ERR ]</h2><p>{{ error() }}</p></article>
+  } @else {
+    @if (post(); as p) {
+    <article class="card post">
+      <header class="post__head">
+        <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
+        <time class="post__date">{{ p.created_at | date:'short' }}</time>
+      </header>
+      @if (p.image_url) {
+        <img class="post__img" [src]="p.image_url" alt="" />
+      }
+      <p class="post__body" [innerHTML]="p.content | formatContent"></p>
+
+      @if (p.shared_post; as sp) {
+        <article class="card shared-post">
+          <header class="post__head">
+            <a class="post__author" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+            <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+          </header>
+          @if (sp.image_url) {
+            <img class="post__img" [src]="sp.image_url" alt="" />
+          }
+          <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+        </article>
+      }
+
+      <footer class="post__foot">
+        <button class="action-btn" (click)="toggleLike(p)" [class.active]="p.is_liked" title="Me gusta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          {{ p.likes_count }}
+        </button>
+        <span class="action-btn static" title="Respuestas">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          {{ p.reply_count }}
+        </span>
+        <button class="action-btn" [class.active]="p.is_reposted" (click)="toggleRepost(p)" title="Repostear">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          {{ p.repost_count }}
+        </button>
+        @if (isOwnPost(p)) {
+          <button class="action-btn danger" (click)="askDelete(p)" title="Eliminar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        }
+      </footer>
+    </article>
+
+    <div class="reply-box">
+      <h2>&gt; responder</h2>
+      <textarea rows="3" [ngModel]="replyText()" (ngModelChange)="replyText.set($event)" maxlength="280" placeholder="Escribí tu respuesta..."></textarea>
+      <input type="url" [ngModel]="replyImageUrl()" (ngModelChange)="replyImageUrl.set($event)" placeholder="URL de imagen (opcional)" />
+      <button (click)="sendReply()" [disabled]="!replyText().trim() || replying()">
+        {{ replying() ? 'Publicando…' : 'Responder' }}
+      </button>
+    </div>
+
+    <div class="replies">
+      @for (r of replies(); track r.id) {
+        <article class="card post reply">
+          <header class="post__head">
+            <a class="post__author" [routerLink]="['/users', r.author_username]">&#64;{{ r.author_username }}</a>
+            <time class="post__date">{{ r.created_at | date:'short' }}</time>
+          </header>
+          @if (r.image_url) {
+            <img class="post__img" [src]="r.image_url" alt="" />
+          }
+          <p class="post__body" [innerHTML]="r.content | formatContent"></p>
+          <footer class="post__foot">
+            <button class="action-btn" (click)="toggleLike(r)" [class.active]="r.is_liked" title="Me gusta">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              {{ r.likes_count }}
+            </button>
+            <button class="action-btn" [class.active]="r.is_reposted" (click)="toggleRepost(r)" title="Repostear">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              {{ r.repost_count }}
+            </button>
+            @if (isOwnPost(r)) {
+              <button class="action-btn danger" (click)="askDelete(r)" title="Eliminar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            }
+          </footer>
+        </article>
+      } @empty {
+        <article class="card"><p>&gt; sin respuestas todavía.</p></article>
+      }
+    </div>
+  }
+  }
+</section>
+
+@if (deleteTarget(); as target) {
+  <div class="confirm-backdrop" (click)="cancelDelete()">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+      <h3 class="confirm-modal__title">Eliminar publicación</h3>
+      <p class="confirm-modal__msg">¿Seguro que querés eliminar esta publicación?</p>
+      <div class="confirm-modal__actions">
+        <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="deleting()">Cancelar</button>
+        <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="deleting()">
+          @if (deleting()) { Eliminando… } @else { Eliminar }
+        </button>
+      </div>
+    </div>
+  </div>
+}
