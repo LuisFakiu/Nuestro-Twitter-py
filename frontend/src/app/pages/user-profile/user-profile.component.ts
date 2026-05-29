@@ -17,6 +17,7 @@ interface PublicProfile {
   following_count: number;
   posts_count: number;
   is_following: boolean;
+  is_blocked: boolean;
 }
 
 interface FollowUser {
@@ -99,6 +100,21 @@ export class UserProfileComponent implements OnInit {
         this.followLoading.set(false);
       },
       error: () => (this.followLoading.set(false)),
+    });
+  }
+
+  blockUser(): void {
+    const p = this.profile();
+    if (!p) return;
+    const method = p.is_blocked ? 'DELETE' : 'POST';
+    const url = p.is_blocked
+      ? `${this.apiBase}/users/${p.username}/unblock/`
+      : `${this.apiBase}/users/${p.username}/block/`;
+    this.http.request(method, url, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.profile.set({ ...p, is_blocked: !p.is_blocked });
+      },
+      error: () => {},
     });
   }
 

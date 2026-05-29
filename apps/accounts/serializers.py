@@ -70,6 +70,7 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     following_count = serializers.IntegerField(source='following_set.count', read_only=True)
     posts_count = serializers.IntegerField(source='posts.count', read_only=True)
     is_following = serializers.SerializerMethodField()
+    is_blocked = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -77,12 +78,21 @@ class PublicProfileSerializer(serializers.ModelSerializer):
             'username', 'bio', 'avatar_url', 'location',
             'is_private', 'date_joined', 'followers_count',
             'following_count', 'posts_count', 'is_following',
+            'is_blocked',
         ]
 
     def get_is_following(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.followers_set.filter(follower=request.user).exists()
+        return False
+
+    def get_is_blocked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return BlockedUser.objects.filter(
+                blocker=request.user, blocked=obj
+            ).exists()
         return False
 
 

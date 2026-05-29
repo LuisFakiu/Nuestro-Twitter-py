@@ -32,9 +32,14 @@
         </div>
       </div>
       @if (!isOwnProfile()) {
-        <button class="follow-btn" [class.following]="p.is_following" (click)="toggleFollow()" [disabled]="followLoading()">
-          {{ p.is_following ? 'Dejar de seguir' : 'Seguir' }}
-        </button>
+        <div class="profile-actions">
+          <button class="follow-btn" [class.following]="p.is_following" (click)="toggleFollow()" [disabled]="followLoading()">
+            {{ p.is_following ? 'Dejar de seguir' : 'Seguir' }}
+          </button>
+          <button class="block-btn" [class.blocked]="p.is_blocked" (click)="blockUser()">
+            {{ p.is_blocked ? 'Desbloquear' : 'Bloquear' }}
+          </button>
+        </div>
       } @else {
         <a class="edit-btn" routerLink="/profile">Editar perfil</a>
       }
