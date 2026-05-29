@@ -383,3 +383,31 @@
 .btn-ghost, .btn-danger { padding: 0.45rem 0.9rem; border-radius: 4px; font-family: inherit; font-size: 0.85rem; cursor: pointer; }
 .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .btn-danger { background: #ff5555; border: 1px solid #ff5555; color: #000; font-weight: 600; }
+
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.block-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  background: transparent;
+  border: 1px solid #ff5555;
+  color: #ff5555;
+
+  &:hover { background: rgba(255, 85, 85, 0.1); }
+
+  &.blocked {
+    border-color: var(--neon, #00ff41);
+    color: var(--neon, #00ff41);
+
+    &:hover { background: rgba(0, 255, 65, 0.1); }
+  }
+}
