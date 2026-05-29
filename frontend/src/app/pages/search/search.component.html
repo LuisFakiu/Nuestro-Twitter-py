@@ -31,25 +31,53 @@
         @for (p of posts(); track p.id) {
           <article class="card post">
             <header class="post__head">
-              <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
-              <time class="post__date">{{ p.created_at | date:'short' }}</time>
+              <div class="post__author-wrap">
+                <a class="post__avatar-link" [routerLink]="['/users', p.author_username]">
+                  @if (p.author_avatar) {
+                    <img class="post__avatar" [src]="p.author_avatar" alt="" />
+                  } @else {
+                    <div class="post__avatar post__avatar--placeholder">{{ p.author_username[0] }}</div>
+                  }
+                </a>
+                <div class="post__author-meta">
+                  <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
+                  <time class="post__date">{{ p.created_at | date:'short' }}</time>
+                </div>
+              </div>
             </header>
             @if (p.image_url) {
               <img class="post__img" [src]="p.image_url" alt="" />
             }
             <p class="post__body" [innerHTML]="p.content | formatContent"></p>
 
-            @if (p.shared_post; as sp) {
-              <article class="card shared-post" [routerLink]="['/post', sp.id]">
-                <header class="post__head">
-                  <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
-                  <time class="post__date">{{ sp.created_at | date:'short' }}</time>
-                </header>
-                @if (sp.image_url) {
-                  <img class="post__img" [src]="sp.image_url" alt="" />
-                }
-                <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+            @if (p.quoted_post_deleted) {
+              <article class="card shared-post shared-post--deleted">
+                <p class="shared-post__deleted-msg">Post no disponible</p>
               </article>
+            } @else {
+              @if (p.shared_post; as sp) {
+                <article class="card shared-post" [routerLink]="['/post', sp.id]">
+                  <header class="post__head">
+                    <div class="post__author-wrap">
+                      <a class="post__avatar-link" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">
+                        @if (sp.author_avatar) {
+                          <img class="post__avatar" [src]="sp.author_avatar" alt="" />
+                        } @else {
+                          <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
+                        }
+                      </a>
+                      <div class="post__author-meta">
+                        <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                        <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                      </div>
+                    </div>
+                  </header>
+                  @if (sp.image_url) {
+                    <img class="post__img" [src]="sp.image_url" alt="" />
+                  }
+                  <p class="post__body" [innerHTML]="sp.content | formatContent"></p>
+                </article>
+              }
             }
 
             <footer class="post__foot">
@@ -108,6 +136,43 @@
     </div>
   }
 </section>
+
+@if (repostTarget(); as target) {
+  @if (repostModalMode() === 'menu') {
+    <div class="confirm-backdrop" (click)="closeRepostModal()">
+      <div class="confirm-modal" (click)="$event.stopPropagation()">
+        <h3 class="confirm-modal__title">&#64;{{ target.author_username }}</h3>
+        <p class="confirm-modal__msg">¿Qué querés hacer con este post?</p>
+        <div class="confirm-modal__actions confirm-modal__actions--stacked">
+          <button type="button" class="btn-neon" (click)="simpleRepost(target)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Repostear
+          </button>
+          <button type="button" class="btn-neon" (click)="repostModalMode.set('quote')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Citar post
+          </button>
+          <button type="button" class="btn-ghost" (click)="closeRepostModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  } @else if (repostModalMode() === 'quote') {
+    <div class="confirm-backdrop" (click)="closeQuoteComposer()">
+      <div class="confirm-modal quote-modal" (click)="$event.stopPropagation()">
+        <h3 class="confirm-modal__title">Citar post</h3>
+        <p class="confirm-modal__msg">Agregá tu comentario al repost:</p>
+        <textarea class="quote-textarea" rows="3" [ngModel]="quoteContent()" (ngModelChange)="quoteContent.set($event)" maxlength="280" placeholder="Escribí tu comentario..."></textarea>
+        <input class="quote-input" type="url" [ngModel]="quoteImageUrl()" (ngModelChange)="quoteImageUrl.set($event)" placeholder="URL de imagen (opcional)" />
+        <div class="confirm-modal__actions">
+          <button type="button" class="btn-ghost" (click)="closeQuoteComposer()" [disabled]="quoting()">Cancelar</button>
+          <button type="button" class="btn-neon" (click)="sendQuote(target)" [disabled]="!quoteContent().trim() || quoting()">
+            @if (quoting()) { Publicando… } @else { Publicar cita }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}
 
 @if (deleteTarget(); as target) {
   <div class="confirm-backdrop" (click)="cancelDelete()">

@@ -60,10 +60,21 @@
           } @else {
             @if (post.shared_post; as sp) {
               <article class="card shared-post" [routerLink]="['/post', sp.id]">
-                <header class="post__head">
-                  <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
-                  <time class="post__date">{{ sp.created_at | date:'short' }}</time>
-                </header>
+              <header class="post__head">
+                <div class="post__author-wrap">
+                  <a class="post__avatar-link" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">
+                    @if (sp.author_avatar) {
+                      <img class="post__avatar" [src]="sp.author_avatar" alt="" />
+                    } @else {
+                      <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
+                    }
+                  </a>
+                  <div class="post__author-meta">
+                    <a class="post__author" (click)="$event.stopPropagation()" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                    <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                  </div>
+                </div>
+              </header>
                 @if (sp.image_url) {
                   <img class="post__img" [src]="sp.image_url" alt="" />
                 }

@@ -46,12 +46,49 @@
 .post__head {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 0.4rem;
+}
+
+.post__author-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.post__author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.post__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+
+  &--placeholder {
+    background: var(--neon, #00ff41);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+}
+
+.post__avatar-link {
+  display: flex;
+  text-decoration: none;
 }
 
 .post__author {
   font-weight: bold;
   color: var(--neon, #00ff41);
+  text-decoration: none;
 }
 
 .post__date {

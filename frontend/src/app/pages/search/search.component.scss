@@ -75,11 +75,49 @@
 .post__head {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 0.4rem;
+}
+
+.post__author-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.post__author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.post__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+
+  &--placeholder {
+    background: var(--neon, #00ff41);
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+}
+
+.post__avatar-link {
+  display: flex;
+  text-decoration: none;
 }
 
 .post__author {
   font-weight: bold;
+  color: var(--neon, #00ff41);
+  text-decoration: none;
 }
 
 .post__date {
@@ -185,6 +223,24 @@
   opacity: 0.9;
   cursor: pointer;
   &:hover { border-color: var(--neon, #00ff41); }
+
+  &--deleted {
+    opacity: 0.6;
+    cursor: default;
+    border-style: dashed;
+    border-color: var(--muted, #888);
+
+    &:hover {
+      border-color: var(--muted, #888);
+    }
+  }
+
+  &__deleted-msg {
+    color: var(--muted, #888);
+    font-style: italic;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
 }
 
 .action-btn {
@@ -258,7 +314,8 @@
 }
 
 .btn-ghost,
-.btn-danger {
+.btn-danger,
+.btn-neon {
   padding: 0.45rem 0.9rem;
   border-radius: 4px;
   font-family: inherit;
@@ -283,4 +340,70 @@
   font-weight: 600;
 
   &:hover:not(:disabled) { background: #ff6b6b; }
+}
+
+.btn-neon {
+  background: transparent;
+  border: 1px solid var(--neon-dim, #1faa07);
+  color: var(--neon, #00ff41);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--neon, #00ff41);
+    color: #000;
+    box-shadow: 0 0 14px rgba(0, 255, 65, 0.6);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.confirm-modal__actions--stacked {
+  flex-direction: column;
+}
+
+.quote-modal {
+  max-width: 460px;
+}
+
+.quote-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #001500;
+  border: 1px solid var(--border, #333);
+  border-radius: 4px;
+  color: var(--text, #e0e0e0);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--neon-dim, #1faa07);
+  }
+}
+
+.quote-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #001500;
+  border: 1px solid var(--border, #333);
+  border-radius: 4px;
+  color: var(--text, #e0e0e0);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--neon-dim, #1faa07);
+  }
 }

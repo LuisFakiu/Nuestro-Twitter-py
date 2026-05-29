@@ -14,8 +14,19 @@
     @if (post(); as p) {
     <article class="card post">
       <header class="post__head">
-        <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
-        <time class="post__date">{{ p.created_at | date:'short' }}</time>
+        <div class="post__author-wrap">
+          <a class="post__avatar-link" [routerLink]="['/users', p.author_username]">
+            @if (p.author_avatar) {
+              <img class="post__avatar" [src]="p.author_avatar" alt="" />
+            } @else {
+              <div class="post__avatar post__avatar--placeholder">{{ p.author_username[0] }}</div>
+            }
+          </a>
+          <div class="post__author-meta">
+            <a class="post__author" [routerLink]="['/users', p.author_username]">&#64;{{ p.author_username }}</a>
+            <time class="post__date">{{ p.created_at | date:'short' }}</time>
+          </div>
+        </div>
       </header>
       @if (p.image_url) {
         <img class="post__img" [src]="p.image_url" alt="" />
@@ -29,10 +40,21 @@
       } @else {
         @if (p.shared_post; as sp) {
           <article class="card shared-post">
-            <header class="post__head">
-              <a class="post__author" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
-              <time class="post__date">{{ sp.created_at | date:'short' }}</time>
-            </header>
+          <header class="post__head">
+            <div class="post__author-wrap">
+              <a class="post__avatar-link" [routerLink]="['/users', sp.author_username]">
+                @if (sp.author_avatar) {
+                  <img class="post__avatar" [src]="sp.author_avatar" alt="" />
+                } @else {
+                  <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
+                }
+              </a>
+              <div class="post__author-meta">
+                <a class="post__author" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+              </div>
+            </div>
+          </header>
             @if (sp.image_url) {
               <img class="post__img" [src]="sp.image_url" alt="" />
             }
@@ -75,8 +97,19 @@
       @for (r of replies(); track r.id) {
         <article class="card post reply">
           <header class="post__head">
-            <a class="post__author" [routerLink]="['/users', r.author_username]">&#64;{{ r.author_username }}</a>
-            <time class="post__date">{{ r.created_at | date:'short' }}</time>
+            <div class="post__author-wrap">
+              <a class="post__avatar-link" [routerLink]="['/users', r.author_username]">
+                @if (r.author_avatar) {
+                  <img class="post__avatar" [src]="r.author_avatar" alt="" />
+                } @else {
+                  <div class="post__avatar post__avatar--placeholder">{{ r.author_username[0] }}</div>
+                }
+              </a>
+              <div class="post__author-meta">
+                <a class="post__author" [routerLink]="['/users', r.author_username]">&#64;{{ r.author_username }}</a>
+                <time class="post__date">{{ r.created_at | date:'short' }}</time>
+              </div>
+            </div>
           </header>
           @if (r.image_url) {
             <img class="post__img" [src]="r.image_url" alt="" />
@@ -91,8 +124,19 @@
             @if (r.shared_post; as sp) {
               <article class="card shared-post">
                 <header class="post__head">
-                  <a class="post__author" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
-                  <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                  <div class="post__author-wrap">
+                    <a class="post__avatar-link" [routerLink]="['/users', sp.author_username]">
+                      @if (sp.author_avatar) {
+                        <img class="post__avatar" [src]="sp.author_avatar" alt="" />
+                      } @else {
+                        <div class="post__avatar post__avatar--placeholder">{{ sp.author_username[0] }}</div>
+                      }
+                    </a>
+                    <div class="post__author-meta">
+                      <a class="post__author" [routerLink]="['/users', sp.author_username]">&#64;{{ sp.author_username }}</a>
+                      <time class="post__date">{{ sp.created_at | date:'short' }}</time>
+                    </div>
+                  </div>
                 </header>
                 @if (sp.image_url) {
                   <img class="post__img" [src]="sp.image_url" alt="" />

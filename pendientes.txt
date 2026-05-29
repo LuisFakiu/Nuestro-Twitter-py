@@ -10,16 +10,16 @@
 *agregar comentarios
 *repostear
 *autocompletado + dropdown al escribir posteo con @ y #
-agregar oauth
-bloquear cuentas
-apartado de configuraciones + cuenta privada o publica + cambiar contraseña + eliminar cuenta + cuentas bloqueadas
+*agregar oauth
+*bloquear cuentas
+*apartado de configuraciones + cuenta privada o publica + cambiar contraseña + eliminar cuenta + cuentas bloqueadas
+*citar post + agregar imagen + "poat no disponible" cuando se borra el post citado
+*foto de perfil visible en el feed
 
 
-citar post + agregar imagen + "poat no disponible" cuando se borra el post citado
-foto de perfil visible en el feed
+que el usuario tenga nombre 
 los comentarios aun no pueden ser respondidos
 que el creador del post pueda limitar los comentarios
-
 separar notificaciones en "todos" y "menciones"
 guardar posts y lista de elementos guardados y mis me gusta
 feed algoritmico + separar feed en "para ti" y "siguiendo"

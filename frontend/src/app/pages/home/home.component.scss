@@ -111,14 +111,51 @@ $border: #134d13;
   &__head {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-start;
     margin-bottom: 0.5rem;
+  }
+
+  &__author-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  &__author-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+
+    &--placeholder {
+      background: $neon;
+      color: $bg;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-shadow: none;
+    }
+  }
+
+  &__avatar-link {
+    display: flex;
+    text-decoration: none;
   }
 
   &__author {
     color: $neon;
     font-weight: 700;
     text-shadow: 0 0 4px rgba($neon, 0.5);
+    text-decoration: none;
   }
 
   &__date {

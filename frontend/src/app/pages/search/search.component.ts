@@ -50,6 +50,12 @@ export class SearchComponent implements OnInit {
   deleteTarget = signal<Post | null>(null);
   deleting = signal(false);
 
+  repostTarget = signal<Post | null>(null);
+  repostModalMode = signal<'menu' | 'quote' | null>(null);
+  quoteContent = signal('');
+  quoteImageUrl = signal('');
+  quoting = signal(false);
+
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       const q = params['q'] || '';
@@ -134,14 +140,53 @@ export class SearchComponent implements OnInit {
         },
       });
     } else {
-      this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
-        next: () => {
-          this.posts.update(list => list.map(p =>
-            p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
-          ));
-        },
-      });
+      this.repostTarget.set(post);
+      this.repostModalMode.set('menu');
+      this.quoteContent.set('');
+      this.quoteImageUrl.set('');
     }
+  }
+
+  simpleRepost(post: Post): void {
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, {}, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeRepostModal();
+      },
+    });
+  }
+
+  sendQuote(post: Post): void {
+    const content = this.quoteContent().trim();
+    const imageUrl = this.quoteImageUrl().trim();
+    if (!content) return;
+    this.quoting.set(true);
+    const body: any = { content };
+    if (imageUrl) body.image_url = imageUrl;
+    this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
+      next: () => {
+        this.posts.update(list => list.map(p =>
+          p.id === post.id ? { ...p, is_reposted: true, repost_count: p.repost_count + 1 } : p
+        ));
+        this.closeQuoteComposer();
+        this.quoting.set(false);
+      },
+      error: () => this.quoting.set(false),
+    });
+  }
+
+  closeRepostModal(): void {
+    this.repostTarget.set(null);
+    this.repostModalMode.set(null);
+  }
+
+  closeQuoteComposer(): void {
+    this.closeRepostModal();
+    this.quoteContent.set('');
+    this.quoteImageUrl.set('');
+    this.quoting.set(false);
   }
 
   askDelete(post: Post): void { this.deleteTarget.set(post); }
