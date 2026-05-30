@@ -46,6 +46,9 @@ export class ComposerComponent {
     content: ['', [Validators.required, Validators.maxLength(280)]],
     image_url: [''],
   });
+  selectedFile = signal<File | null>(null);
+  uploading = signal(false);
+  previewUrl = signal<string | null>(null);
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event): void {
@@ -280,14 +283,61 @@ export class ComposerComponent {
     return bio.slice(0, 50) + '…';
   }
 
-  save(): void {
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.selectedFile.set(file);
+
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  removeFile(): void {
+    this.selectedFile.set(null);
+    this.previewUrl.set(null);
+    this.form.controls.image_url.setValue('');
+  }
+
+  private uploadFile(): Promise<string | null> {
+    const file = this.selectedFile();
+    if (!file) return Promise.resolve(null);
+
+    this.uploading.set(true);
+    const fd = new FormData();
+    fd.append('file', file);
+
+    return new Promise((resolve) => {
+      this.http.post<{ url: string }>(`${this.apiBase}/upload/`, fd).subscribe({
+        next: (res) => {
+          this.uploading.set(false);
+          resolve(res.url);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.error.set(err.error?.error || 'Error al subir imagen');
+          this.uploading.set(false);
+          resolve(null);
+        },
+      });
+    });
+  }
+
+  async save(): Promise<void> {
     if (this.form.invalid) return;
     this.saving.set(true);
     this.error.set(null);
 
     const body: Record<string, any> = { content: this.form.controls.content.value };
-    const img = this.form.controls.image_url.value?.trim();
-    if (img) body['image_url'] = img;
+
+    if (this.selectedFile()) {
+      const url = await this.uploadFile();
+      if (url) body['image_url'] = url;
+      else { this.saving.set(false); return; }
+    } else {
+      const img = this.form.controls.image_url.value?.trim();
+      if (img) body['image_url'] = img;
+    }
 
     this.http.post(`${this.apiBase}/posts/`, body).subscribe({
       next: () => this.router.navigate(['/']),
