@@ -89,9 +89,21 @@
         </div>
       }
     </div>
-    <input class="reply-image-input" type="url" [ngModel]="replyImageUrl()" (ngModelChange)="replyImageUrl.set($event)" placeholder="URL de imagen (opcional)" />
-    <button class="send-reply-btn" (click)="sendReply()" [disabled]="!replyText().trim() || replying()">
-      {{ replying() ? 'Publicando…' : 'Responder' }}
+    <div class="reply-file">
+      <label class="file-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>{{ replyFile() ? replyFile()!.name : 'Imagen' }}</span>
+        <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onReplyFileSelected($event)" hidden />
+      </label>
+      @if (replyPreviewUrl()) {
+        <div class="file-preview">
+          <img [src]="replyPreviewUrl()" alt="" />
+          <button type="button" class="file-remove" (click)="removeReplyFile()">×</button>
+        </div>
+      }
+    </div>
+    <button class="send-reply-btn" (click)="sendReply()" [disabled]="!replyText().trim() || replying() || replyUploading()">
+      {{ replyUploading() ? 'Subiendo…' : (replying() ? 'Publicando…' : 'Responder') }}
     </button>
   </div>
 }
