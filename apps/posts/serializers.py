@@ -7,7 +7,7 @@ class PostSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
     author_avatar = serializers.URLField(source='author.avatar_url', read_only=True)
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
-    reply_count = serializers.IntegerField(source='replies.count', read_only=True)
+    reply_count = serializers.SerializerMethodField()
     repost_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_reposted = serializers.SerializerMethodField()
@@ -62,6 +62,16 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_repost_count(self, obj):
         return Post.objects.filter(shared_post=obj).count()
+
+    def get_reply_count(self, obj):
+        count = 0
+        current = [obj.id]
+        while current:
+            children = Post.objects.filter(parent_id__in=current).values_list('id', flat=True)
+            child_ids = list(children)
+            count += len(child_ids)
+            current = child_ids
+        return count
 
     def get_hashtags_list(self, obj):
         return [h.hashtag.name for h in obj.hashtags.all()]

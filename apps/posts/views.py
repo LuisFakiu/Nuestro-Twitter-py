@@ -126,9 +126,20 @@ class PostRepliesView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         visible = get_visible_users(self.request.user)
+        pk = self.kwargs['pk']
+        descendant_ids = set()
+        current = [pk]
+        while current:
+            children = Post.objects.filter(
+                parent_id__in=current, author__in=visible
+            ).values_list('id', flat=True)
+            child_ids = list(children)
+            if not child_ids:
+                break
+            descendant_ids.update(child_ids)
+            current = child_ids
         return Post.objects.filter(
-            parent_id=self.kwargs['pk'],
-            author__in=visible,
+            id__in=descendant_ids,
         ).select_related('author')
 
     def perform_create(self, serializer):

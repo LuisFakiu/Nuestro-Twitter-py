@@ -1,0 +1,113 @@
+<article class="card post reply">
+  <header class="post__head">
+    <div class="post__author-wrap">
+      <a class="post__avatar-link" [routerLink]="['/users', reply().author_username]">
+        @if (reply().author_avatar) {
+          <img class="post__avatar" [src]="reply().author_avatar" alt="" />
+        } @else {
+          <div class="post__avatar post__avatar--placeholder">{{ reply().author_username[0] }}</div>
+        }
+      </a>
+      <div class="post__author-meta">
+        <a class="post__author" [routerLink]="['/users', reply().author_username]">&#64;{{ reply().author_username }}</a>
+        <time class="post__date">{{ reply().created_at | date:'short' }}</time>
+      </div>
+    </div>
+  </header>
+
+  @if (reply().image_url) {
+    <img class="post__img" [src]="reply().image_url" alt="" />
+  }
+  <p class="post__body" [innerHTML]="reply().content | formatContent"></p>
+
+  <footer class="post__foot">
+    <button class="action-btn" (click)="toggleLike.emit(reply())" [class.active]="reply().is_liked" title="Me gusta">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      {{ reply().likes_count }}
+    </button>
+    <button class="action-btn" (click)="openReply()" title="Responder">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      {{ reply().reply_count || '' }}
+    </button>
+    <button class="action-btn" [class.active]="reply().is_reposted" (click)="toggleRepost.emit(reply())" title="Repostear">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      {{ reply().repost_count }}
+    </button>
+    @if (isOwnPost()) {
+      <button class="action-btn danger" (click)="askDelete.emit(reply())" title="Eliminar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    }
+    @if (children.length > 0) {
+      <button class="action-btn toggle-btn" (click)="toggleExpand()" [class.collapsed]="!isExpanded()" title="Alternar respuestas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        {{ children.length }}
+      </button>
+    }
+  </footer>
+</article>
+
+@if (showReplyForm()) {
+  <div class="inline-reply">
+    <p class="inline-reply__indicator">
+      Respondiendo a <strong>&#64;{{ reply().author_username }}</strong>
+      <button type="button" class="cancel-reply-btn" (click)="cancelReply()">Cancelar</button>
+    </p>
+    <div class="reply-textarea-wrapper">
+      <textarea
+        #replyTextarea
+        class="reply-textarea"
+        rows="2"
+        [ngModel]="replyText()"
+        (ngModelChange)="replyText.set($event)"
+        (input)="onInput()"
+        (keydown)="onKeyDown($event)"
+        maxlength="280"
+        placeholder="Escribí tu respuesta..."
+      ></textarea>
+      @if (showSuggestions) {
+        <div class="reply-suggestions">
+          @for (user of suggestedUsers; track user.username; let i = $index) {
+            <button type="button" class="suggestion-item" [class.suggestion-item--selected]="selectedIndex === i" (mousedown)="selectSuggestion('user', user, i)">
+              @if (user.avatar_url) {
+                <img class="suggestion-item__avatar" [src]="user.avatar_url" alt="" />
+              } @else {
+                <div class="suggestion-item__avatar suggestion-item__avatar--placeholder">{{ user.username[0] }}</div>
+              }
+              <div class="suggestion-item__info">
+                <span class="suggestion-item__name">&#64;{{ user.username }}</span>
+                @if (user.bio) { <span class="suggestion-item__bio">{{ truncateBio(user.bio) }}</span> }
+              </div>
+            </button>
+          }
+          @for (tag of suggestedHashtags; track tag.name; let i = $index) {
+            <button type="button" class="suggestion-item suggestion-item--hashtag" [class.suggestion-item--selected]="selectedIndex === suggestedUsers.length + i" (mousedown)="selectSuggestion('hashtag', tag, suggestedUsers.length + i)">
+              <span class="suggestion-item__hashtag">&#35;{{ tag.name }}</span>
+              <span class="suggestion-item__count">{{ tag.post_count }} posts</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <input class="reply-image-input" type="url" [ngModel]="replyImageUrl()" (ngModelChange)="replyImageUrl.set($event)" placeholder="URL de imagen (opcional)" />
+    <button class="send-reply-btn" (click)="sendReply()" [disabled]="!replyText().trim() || replying()">
+      {{ replying() ? 'Publicando…' : 'Responder' }}
+    </button>
+  </div>
+}
+
+@if (isExpanded() && children.length > 0) {
+  <div class="replies-nested">
+    @for (child of children; track child.id) {
+      <app-reply-thread
+        [reply]="child"
+        [childrenMap]="childrenMap()"
+        [currentUserId]="currentUserId()"
+        (toggleLike)="toggleLike.emit($event)"
+        (toggleRepost)="toggleRepost.emit($event)"
+        (askDelete)="askDelete.emit($event)"
+        (replySubmitted)="replySubmitted.emit()"
+      />
+    }
+  </div>
+}
