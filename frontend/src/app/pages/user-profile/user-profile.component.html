@@ -1,5 +1,15 @@
 <section class="user-profile">
   @if (profile(); as p) {
+    @if (p.is_blocked) {
+      <article class="card card--blocked">
+        <div class="blocked-notice">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          <h2>Bloqueaste a &#64;{{ p.username }}</h2>
+          <p>¿Querés desbloquear a este usuario?</p>
+          <button class="block-btn blocked" (click)="blockUser()" [disabled]="followLoading()">Desbloquear</button>
+        </div>
+      </article>
+    } @else {
     <header class="profile-card">
       <div class="profile-card__avatar">
         @if (p.avatar_url) {
@@ -23,17 +33,17 @@
         </p>
         <div class="stats">
           <span><strong>{{ p.posts_count }}</strong> posts</span>
-          @if (isOwnProfile() && p.is_private) {
-            <button type="button" class="stat-btn" (click)="openRequestsModal()">
-              solicitudes
-            </button>
-          }
           <button type="button" class="stat-btn" (click)="openFollowModal('followers')">
             <strong>{{ p.followers_count }}</strong> seguidores
           </button>
           <button type="button" class="stat-btn" (click)="openFollowModal('following')">
             <strong>{{ p.following_count }}</strong> siguiendo
           </button>
+          @if (isOwnProfile() && p.is_private) {
+            <button type="button" class="stat-btn" (click)="openRequestsModal()">
+              solicitudes
+            </button>
+          }
         </div>
       </div>
       @if (!isOwnProfile()) {
@@ -133,8 +143,9 @@
         }
       </div>
     }
-  } @else {
-    @if (loading()) {
+  }
+} @else {
+  @if (loading()) {
       <article class="card card--loading"><p>&gt; cargando...</p></article>
     } @else if (error()) {
       <article class="card card--error"><h2>[ ERR ]</h2><p>{{ error() }}</p></article>

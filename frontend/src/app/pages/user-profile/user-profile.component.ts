@@ -10,17 +10,18 @@ import { environment } from '../../../environments/environment';
 
 interface PublicProfile {
   username: string;
-  bio: string;
-  avatar_url: string;
-  location: string;
-  is_private: boolean;
-  date_joined: string;
-  followers_count: number;
-  following_count: number;
-  posts_count: number;
-  is_following: boolean;
-  is_pending_follow: boolean;
-  is_blocked: boolean;
+  bio?: string;
+  avatar_url?: string;
+  location?: string;
+  is_private?: boolean;
+  date_joined?: string;
+  followers_count?: number;
+  following_count?: number;
+  posts_count?: number;
+  is_following?: boolean;
+  is_pending_follow?: boolean;
+  is_blocked?: boolean;
+  is_blocked_by?: boolean;
 }
 
 interface FollowUser {
@@ -140,13 +141,25 @@ export class UserProfileComponent implements OnInit {
     const p = this.profile();
     if (!p) return;
     this.followLoading.set(true);
-    const method = p.is_following || p.is_pending_follow ? 'DELETE' : 'POST';
+    const isFollowing = !!p.is_following;
+    const isPending = !!p.is_pending_follow;
+    const method = isFollowing || isPending ? 'DELETE' : 'POST';
     this.http.request(method, `${this.apiBase}/users/${p.username}/follow/`, { responseType: 'text' }).subscribe({
       next: () => {
         if (method === 'POST') {
-          this.profile.set({ ...p, is_pending_follow: p.is_private, is_following: !p.is_private });
+          this.profile.set({
+            ...p,
+            is_pending_follow: !!p.is_private,
+            is_following: !p.is_private,
+            followers_count: p.followers_count! + (p.is_private ? 0 : 1),
+          });
         } else {
-          this.profile.set({ ...p, is_following: false, is_pending_follow: false });
+          this.profile.set({
+            ...p,
+            is_following: false,
+            is_pending_follow: false,
+            followers_count: Math.max(0, p.followers_count! - (isFollowing ? 1 : 0)),
+          });
         }
         this.followLoading.set(false);
       },
@@ -157,15 +170,17 @@ export class UserProfileComponent implements OnInit {
   blockUser(): void {
     const p = this.profile();
     if (!p) return;
+    this.followLoading.set(true);
     const method = p.is_blocked ? 'DELETE' : 'POST';
     const url = p.is_blocked
       ? `${this.apiBase}/users/${p.username}/unblock/`
       : `${this.apiBase}/users/${p.username}/block/`;
     this.http.request(method, url, { responseType: 'text' }).subscribe({
       next: () => {
-        this.profile.set({ ...p, is_blocked: !p.is_blocked });
+        this.followLoading.set(false);
+        this.loadProfile(p.username);
       },
-      error: () => {},
+      error: () => { this.followLoading.set(false); },
     });
   }
 
@@ -336,7 +351,7 @@ export class UserProfileComponent implements OnInit {
     this.http.post(`${this.apiBase}/users/${req.username}/handle-follow-request/`, {}, { responseType: 'text' }).subscribe({
       next: () => {
         this.pendingRequests.update(list => list.filter(r => r.id !== req.id));
-        this.profile.update(p => p ? { ...p, followers_count: p.followers_count + 1 } : p);
+        this.profile.update(p => p ? { ...p, followers_count: (p.followers_count ?? 0) + 1 } : p);
       },
     });
   }
@@ -372,9 +387,9 @@ export class UserProfileComponent implements OnInit {
         const p = this.profile();
         if (p) {
           if (target.action === 'remove') {
-            this.profile.set({ ...p, followers_count: Math.max(0, p.followers_count - 1) });
+            this.profile.set({ ...p, followers_count: Math.max(0, (p.followers_count ?? 0) - 1) });
           } else {
-            this.profile.set({ ...p, following_count: Math.max(0, p.following_count - 1) });
+            this.profile.set({ ...p, following_count: Math.max(0, (p.following_count ?? 0) - 1) });
           }
         }
         this.actionLoading.set(false);

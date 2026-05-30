@@ -18,6 +18,10 @@
 *post/repost/comentarios/likes separados dentro de "mi perfil"
 *vista de "usuario con cuenta privada" al inspeccionar un perfil ajeno + aun ver su conteo de posts, seguidores y seguidos
 *aceptar o rechazar solicitud de follow si tu perfil es privado, quitar aceptacion automatica
+*vista de "usuario bloqueado" al inspeccionar perfil + ocultar sus posts y demas info (mutuamente) + no poder seguir y quitar follow automaticamente al bloquear + ocultar usuario al ser buscado
+*actualizacion en tiempo real al seguir a una persona y al quitar follow
+
+
 
 
 que el usuario tenga nombre aparte de su @

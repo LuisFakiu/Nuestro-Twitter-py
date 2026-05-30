@@ -85,6 +85,21 @@ export class AuthService {
     return sessionStorage.getItem(ACCESS_KEY);
   }
 
+  getRefreshToken(): string | null {
+    return sessionStorage.getItem(REFRESH_KEY);
+  }
+
+  setAccessToken(token: string): void {
+    sessionStorage.setItem(ACCESS_KEY, token);
+  }
+
+  refreshToken(): Observable<{ access: string }> {
+    const refresh = this.getRefreshToken();
+    return this.http
+      .post<{ access: string }>(`${environment.apiUrl}/auth/refresh/`, { refresh })
+      .pipe(tap((res) => this.setAccessToken(res.access)));
+  }
+
   private persist(res: AuthResponse): void {
     sessionStorage.setItem(ACCESS_KEY, res.tokens.access);
     sessionStorage.setItem(REFRESH_KEY, res.tokens.refresh);

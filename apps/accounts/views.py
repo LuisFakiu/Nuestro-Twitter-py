@@ -150,6 +150,18 @@ class PublicProfileView(generics.RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        if request.user.is_authenticated:
+            if is_blocked_by(blocker=instance, blocked=request.user):
+                return Response(
+                    {'detail': 'No encontrado.'},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            if is_blocked_by(blocker=request.user, blocked=instance):
+                return Response({
+                    'username': instance.username,
+                    'is_blocked': True,
+                    'is_blocked_by': False,
+                })
         return super().retrieve(request, *args, **kwargs)
 
 
@@ -312,6 +324,10 @@ def block_user(request, username):
         Q(follower=request.user, following=target)
         | Q(follower=target, following=request.user)
     ).delete()
+    FollowRequest.objects.filter(
+        Q(follower=request.user, following=target)
+        | Q(follower=target, following=request.user)
+    ).delete()
     return Response(status=status.HTTP_201_CREATED)
 
 
@@ -348,9 +364,20 @@ class UserSearchView(generics.ListAPIView):
         q = self.request.query_params.get('q', '')
         if not q:
             return User.objects.none()
-        return User.objects.filter(
+        qs = User.objects.filter(
             Q(username__icontains=q) | Q(bio__icontains=q)
-        )[:10]
+        )
+        if self.request.user.is_authenticated:
+            blocked_users = BlockedUser.objects.filter(
+                blocker=self.request.user
+            ).values('blocked')
+            blocked_by = BlockedUser.objects.filter(
+                blocked=self.request.user
+            ).values('blocker')
+            qs = qs.exclude(
+                Q(pk__in=blocked_users) | Q(pk__in=blocked_by)
+            )
+        return qs[:10]
 
 
 class FollowersListView(generics.ListAPIView):
@@ -359,7 +386,18 @@ class FollowersListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(following_set__following=user)
+        qs = User.objects.filter(following_set__following=user)
+        if self.request.user.is_authenticated:
+            blocked_users = BlockedUser.objects.filter(
+                blocker=self.request.user
+            ).values('blocked')
+            blocked_by = BlockedUser.objects.filter(
+                blocked=self.request.user
+            ).values('blocker')
+            qs = qs.exclude(
+                Q(pk__in=blocked_users) | Q(pk__in=blocked_by)
+            )
+        return qs
 
 
 class FollowingListView(generics.ListAPIView):
@@ -368,4 +406,15 @@ class FollowingListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs['username'])
-        return User.objects.filter(followers_set__follower=user)
+        qs = User.objects.filter(followers_set__follower=user)
+        if self.request.user.is_authenticated:
+            blocked_users = BlockedUser.objects.filter(
+                blocker=self.request.user
+            ).values('blocked')
+            blocked_by = BlockedUser.objects.filter(
+                blocked=self.request.user
+            ).values('blocker')
+            qs = qs.exclude(
+                Q(pk__in=blocked_users) | Q(pk__in=blocked_by)
+            )
+        return qs
