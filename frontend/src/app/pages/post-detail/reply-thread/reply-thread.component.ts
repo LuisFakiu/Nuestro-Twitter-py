@@ -45,6 +45,9 @@ export class ReplyThreadComponent {
   showReplyForm = signal(false);
   replyText = signal('');
   replyImageUrl = signal('');
+  replyFile = signal<File | null>(null);
+  replyPreviewUrl = signal<string | null>(null);
+  replyUploading = signal(false);
   replying = signal(false);
 
   suggestedUsers: SuggestedUser[] = [];
@@ -70,15 +73,55 @@ export class ReplyThreadComponent {
     this.showReplyForm.set(false);
     this.replyText.set('');
     this.replyImageUrl.set('');
+    this.replyFile.set(null);
+    this.replyPreviewUrl.set(null);
     this.closeSuggestions();
   }
 
-  sendReply(): void {
+  onReplyFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.replyFile.set(file);
+    const reader = new FileReader();
+    reader.onload = () => this.replyPreviewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  removeReplyFile(): void {
+    this.replyFile.set(null);
+    this.replyPreviewUrl.set(null);
+    this.replyImageUrl.set('');
+  }
+
+  private uploadReplyFile(): Promise<string | null> {
+    const file = this.replyFile();
+    if (!file) return Promise.resolve(null);
+    this.replyUploading.set(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    return new Promise((resolve) => {
+      this.http.post<{ url: string }>(`${environment.apiUrl}/upload/`, fd).subscribe({
+        next: (res) => { this.replyUploading.set(false); resolve(res.url); },
+        error: () => { this.replyUploading.set(false); resolve(null); },
+      });
+    });
+  }
+
+  async sendReply(): Promise<void> {
     const text = this.replyText().trim();
     if (!text) return;
     this.replying.set(true);
     const body: any = { content: text };
-    if (this.replyImageUrl().trim()) body.image_url = this.replyImageUrl().trim();
+
+    if (this.replyFile()) {
+      const url = await this.uploadReplyFile();
+      if (url) body.image_url = url;
+      else { this.replying.set(false); return; }
+    } else if (this.replyImageUrl().trim()) {
+      body.image_url = this.replyImageUrl().trim();
+    }
+
     this.http.post(`${environment.apiUrl}/posts/${this.reply().id}/replies/`, body).subscribe({
       next: () => {
         this.cancelReply();

@@ -43,6 +43,9 @@ export class PostDetailComponent implements OnInit {
 
   replyText = signal('');
   replyImageUrl = signal('');
+  replyFile = signal<File | null>(null);
+  replyPreviewUrl = signal<string | null>(null);
+  replyUploading = signal(false);
   replying = signal(false);
 
   deleteTarget = signal<Post | null>(null);
@@ -74,6 +77,9 @@ export class PostDetailComponent implements OnInit {
   repostModalMode = signal<'menu' | 'quote' | null>(null);
   quoteContent = signal('');
   quoteImageUrl = signal('');
+  quoteFile = signal<File | null>(null);
+  quotePreviewUrl = signal<string | null>(null);
+  quoteUploading = signal(false);
   quoting = signal(false);
 
   ngOnInit(): void {
@@ -140,6 +146,8 @@ export class PostDetailComponent implements OnInit {
       this.repostModalMode.set('menu');
       this.quoteContent.set('');
       this.quoteImageUrl.set('');
+      this.quoteFile.set(null);
+      this.quotePreviewUrl.set(null);
     }
   }
 
@@ -158,13 +166,51 @@ export class PostDetailComponent implements OnInit {
     });
   }
 
-  sendQuote(post: Post): void {
+  onQuoteFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.quoteFile.set(file);
+    const reader = new FileReader();
+    reader.onload = () => this.quotePreviewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  removeQuoteFile(): void {
+    this.quoteFile.set(null);
+    this.quotePreviewUrl.set(null);
+    this.quoteImageUrl.set('');
+  }
+
+  private uploadQuoteFile(): Promise<string | null> {
+    const file = this.quoteFile();
+    if (!file) return Promise.resolve(null);
+    this.quoteUploading.set(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    return new Promise((resolve) => {
+      this.http.post<{ url: string }>(`${this.apiBase}/upload/`, fd).subscribe({
+        next: (res) => { this.quoteUploading.set(false); resolve(res.url); },
+        error: () => { this.quoteUploading.set(false); resolve(null); },
+      });
+    });
+  }
+
+  async sendQuote(post: Post): Promise<void> {
     const content = this.quoteContent().trim();
-    const imageUrl = this.quoteImageUrl().trim();
     if (!content) return;
     this.quoting.set(true);
     const body: any = { content };
-    if (imageUrl) body.image_url = imageUrl;
+
+    if (this.quoteFile()) {
+      const url = await this.uploadQuoteFile();
+      if (url) body.image_url = url;
+      else { this.quoting.set(false); return; }
+    } else {
+      const imageUrl = this.quoteImageUrl().trim();
+      if (imageUrl) body.image_url = imageUrl;
+    }
+
     this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
       next: () => {
         this.replies.update(list => list.map(p =>
@@ -190,19 +236,62 @@ export class PostDetailComponent implements OnInit {
     this.closeRepostModal();
     this.quoteContent.set('');
     this.quoteImageUrl.set('');
+    this.quoteFile.set(null);
+    this.quotePreviewUrl.set(null);
+    this.quoteUploading.set(false);
     this.quoting.set(false);
   }
 
-  sendReply(): void {
+  onReplyFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.replyFile.set(file);
+    const reader = new FileReader();
+    reader.onload = () => this.replyPreviewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  removeReplyFile(): void {
+    this.replyFile.set(null);
+    this.replyPreviewUrl.set(null);
+    this.replyImageUrl.set('');
+  }
+
+  private uploadReplyFile(): Promise<string | null> {
+    const file = this.replyFile();
+    if (!file) return Promise.resolve(null);
+    this.replyUploading.set(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    return new Promise((resolve) => {
+      this.http.post<{ url: string }>(`${this.apiBase}/upload/`, fd).subscribe({
+        next: (res) => { this.replyUploading.set(false); resolve(res.url); },
+        error: () => { this.replyUploading.set(false); resolve(null); },
+      });
+    });
+  }
+
+  async sendReply(): Promise<void> {
     const text = this.replyText().trim();
     if (!text) return;
     this.replying.set(true);
     const body: any = { content: text };
-    if (this.replyImageUrl().trim()) body.image_url = this.replyImageUrl().trim();
+
+    if (this.replyFile()) {
+      const url = await this.uploadReplyFile();
+      if (url) body.image_url = url;
+      else { this.replying.set(false); return; }
+    } else if (this.replyImageUrl().trim()) {
+      body.image_url = this.replyImageUrl().trim();
+    }
+
     this.http.post(`${this.apiBase}/posts/${this.post()!.id}/replies/`, body).subscribe({
       next: () => {
         this.replyText.set('');
         this.replyImageUrl.set('');
+        this.replyFile.set(null);
+        this.replyPreviewUrl.set(null);
         this.replying.set(false);
         this.post.update(p => p ? { ...p, reply_count: p.reply_count + 1 } : p);
         this.loadReplies(this.post()!.id);
