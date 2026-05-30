@@ -53,6 +53,9 @@ export class HomeComponent implements OnInit {
   repostModalMode = signal<'menu' | 'quote' | null>(null);
   quoteContent = signal('');
   quoteImageUrl = signal('');
+  quoteFile = signal<File | null>(null);
+  quotePreviewUrl = signal<string | null>(null);
+  quoteUploading = signal(false);
   quoting = signal(false);
 
   ngOnInit(): void {
@@ -128,6 +131,8 @@ export class HomeComponent implements OnInit {
       this.repostModalMode.set('menu');
       this.quoteContent.set('');
       this.quoteImageUrl.set('');
+      this.quoteFile.set(null);
+      this.quotePreviewUrl.set(null);
     }
   }
 
@@ -142,13 +147,51 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  sendQuote(post: Post): void {
+  onQuoteFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.quoteFile.set(file);
+    const reader = new FileReader();
+    reader.onload = () => this.quotePreviewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  removeQuoteFile(): void {
+    this.quoteFile.set(null);
+    this.quotePreviewUrl.set(null);
+    this.quoteImageUrl.set('');
+  }
+
+  private uploadQuoteFile(): Promise<string | null> {
+    const file = this.quoteFile();
+    if (!file) return Promise.resolve(null);
+    this.quoteUploading.set(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    return new Promise((resolve) => {
+      this.http.post<{ url: string }>(`${this.apiBase}/upload/`, fd).subscribe({
+        next: (res) => { this.quoteUploading.set(false); resolve(res.url); },
+        error: () => { this.quoteUploading.set(false); resolve(null); },
+      });
+    });
+  }
+
+  async sendQuote(post: Post): Promise<void> {
     const content = this.quoteContent().trim();
-    const imageUrl = this.quoteImageUrl().trim();
     if (!content) return;
     this.quoting.set(true);
     const body: any = { content };
-    if (imageUrl) body.image_url = imageUrl;
+
+    if (this.quoteFile()) {
+      const url = await this.uploadQuoteFile();
+      if (url) body.image_url = url;
+      else { this.quoting.set(false); return; }
+    } else {
+      const imageUrl = this.quoteImageUrl().trim();
+      if (imageUrl) body.image_url = imageUrl;
+    }
+
     this.http.post(`${this.apiBase}/posts/${post.id}/repost/`, body, { responseType: 'json' }).subscribe({
       next: () => {
         this.posts.update(list => list.map(p =>
@@ -170,6 +213,9 @@ export class HomeComponent implements OnInit {
     this.closeRepostModal();
     this.quoteContent.set('');
     this.quoteImageUrl.set('');
+    this.quoteFile.set(null);
+    this.quotePreviewUrl.set(null);
+    this.quoteUploading.set(false);
     this.quoting.set(false);
   }
 

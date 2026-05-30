@@ -332,11 +332,23 @@
           <h3 class="confirm-modal__title">Citar post</h3>
           <p class="confirm-modal__msg">Agregá tu comentario al repost:</p>
           <textarea class="quote-textarea" rows="3" [ngModel]="quoteContent()" (ngModelChange)="quoteContent.set($event)" maxlength="280" placeholder="Escribí tu comentario..."></textarea>
-          <input class="quote-input" type="url" [ngModel]="quoteImageUrl()" (ngModelChange)="quoteImageUrl.set($event)" placeholder="URL de imagen (opcional)" />
+          <div class="quote-file">
+            <label class="file-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>{{ quoteFile() ? quoteFile()!.name : 'Imagen' }}</span>
+              <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" (change)="onQuoteFileSelected($event)" hidden />
+            </label>
+            @if (quotePreviewUrl()) {
+              <div class="file-preview">
+                <img [src]="quotePreviewUrl()" alt="" />
+                <button type="button" class="file-remove" (click)="removeQuoteFile()">×</button>
+              </div>
+            }
+          </div>
           <div class="confirm-modal__actions">
-            <button type="button" class="btn-ghost" (click)="closeQuoteComposer()" [disabled]="quoting()">Cancelar</button>
-            <button type="button" class="btn-neon" (click)="sendQuote(target)" [disabled]="!quoteContent().trim() || quoting()">
-              @if (quoting()) { Publicando… } @else { Publicar cita }
+            <button type="button" class="btn-ghost" (click)="closeQuoteComposer()" [disabled]="quoting() || quoteUploading()">Cancelar</button>
+            <button type="button" class="btn-neon" (click)="sendQuote(target)" [disabled]="!quoteContent().trim() || quoting() || quoteUploading()">
+              @if (quoteUploading()) { Subiendo… } @else if (quoting()) { Publicando… } @else { Publicar cita }
             </button>
           </div>
         </div>
