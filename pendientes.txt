@@ -20,12 +20,11 @@
 *aceptar o rechazar solicitud de follow si tu perfil es privado, quitar aceptacion automatica
 *vista de "usuario bloqueado" al inspeccionar perfil + ocultar sus posts y demas info (mutuamente) + no poder seguir y quitar follow automaticamente al bloquear + ocultar usuario al ser buscado
 *actualizacion en tiempo real al seguir a una persona y al quitar follow
-
+*los comentarios aun no pueden ser respondidos
 
 
 
 que el usuario tenga nombre aparte de su @
-los comentarios aun no pueden ser respondidos
 que el creador del post pueda limitar los comentarios
 separar notificaciones en "todos" y "menciones"
 guardar posts y lista de elementos guardados y mis me gusta
