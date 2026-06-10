@@ -11,3 +11,5 @@ google-auth==2.38.0
 requests==2.32.3
 cloudinary==1.41.0
 Pillow==11.1.0
+channels[daphne]==4.2.0
+channels_redis==4.2.1
