@@ -70,7 +70,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'nandetuiter.wsgi.application'
+ASGI_APPLICATION = 'nandetuiter.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Por defecto SQLite (dev). prod.py override a Postgres.
 DATABASES = {
