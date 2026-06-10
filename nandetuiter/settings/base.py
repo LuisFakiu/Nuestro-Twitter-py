@@ -15,6 +15,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Terceros
+    'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     'apps.posts',
     'apps.notifications',
     'apps.core',
+    'apps.messaging',
 ]
 
 MIDDLEWARE = [
