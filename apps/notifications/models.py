@@ -6,6 +6,7 @@ class Notification(models.Model):
     class Verb(models.TextChoices):
         LIKE = 'like', 'Like'
         FOLLOW = 'follow', 'Follow'
+        FOLLOW_REQUEST = 'follow_request', 'Solicitud de seguimiento'
         MENTION = 'mention', 'Mencion'
         REPLY = 'reply', 'Respuesta'
         REPOST = 'repost', 'Reposteado'

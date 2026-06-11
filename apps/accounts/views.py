@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from apps.notifications.models import Notification
+
 from .models import BlockedUser, Follow, FollowRequest, User
 from .utils import can_view_profile, is_blocked_by
 from .serializers import (
@@ -249,6 +251,10 @@ def handle_follow_request(request, username):
     follow_request = get_object_or_404(
         FollowRequest, follower=follower, following=request.user
     )
+
+    Notification.objects.filter(
+        recipient=request.user, actor=follower, verb=Notification.Verb.FOLLOW_REQUEST,
+    ).delete()
 
     if request.method == 'POST':
         Follow.objects.create(follower=follower, following=request.user)

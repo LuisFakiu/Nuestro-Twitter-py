@@ -15,6 +15,7 @@ export class NotificationsComponent implements OnInit {
 
   notifications = signal<Notification[]>([]);
   loading = signal(true);
+  actionLoading = signal<Record<number, boolean>>({});
 
   ngOnInit(): void {
     this.notif.getNotifications().subscribe({
@@ -34,10 +35,29 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
+  acceptRequest(n: Notification): void {
+    this.actionLoading.update((l) => ({ ...l, [n.id]: true }));
+    this.notif.acceptFollowRequest(n.actor_username).subscribe({
+      next: () => this.notifications.update((list) => list.filter((x) => x.id !== n.id)),
+      error: () => this.actionLoading.update((l) => ({ ...l, [n.id]: false })),
+      complete: () => this.actionLoading.update((l) => ({ ...l, [n.id]: false })),
+    });
+  }
+
+  rejectRequest(n: Notification): void {
+    this.actionLoading.update((l) => ({ ...l, [n.id]: true }));
+    this.notif.rejectFollowRequest(n.actor_username).subscribe({
+      next: () => this.notifications.update((list) => list.filter((x) => x.id !== n.id)),
+      error: () => this.actionLoading.update((l) => ({ ...l, [n.id]: false })),
+      complete: () => this.actionLoading.update((l) => ({ ...l, [n.id]: false })),
+    });
+  }
+
   verbLabel(verb: string): string {
     const labels: Record<string, string> = {
       like: 'le gustó tu post',
       follow: 'empezó a seguirte',
+      follow_request: 'quiere seguirte',
       mention: 'te mencionó en un post',
       reply: 'respondió a tu post',
       repost: 'reposteó tu post',

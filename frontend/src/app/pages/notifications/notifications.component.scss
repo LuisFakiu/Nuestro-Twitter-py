@@ -67,3 +67,47 @@
   font-size: 0.8rem;
   opacity: 0.7;
 }
+
+.notif__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.btn-accept,
+.btn-reject {
+  border: 1px solid var(--border, #333);
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.btn-accept {
+  color: var(--neon, #00ff41);
+  border-color: var(--neon, #00ff41);
+
+  &:hover:not(:disabled) {
+    background: var(--neon, #00ff41);
+    color: #000;
+  }
+}
+
+.btn-reject {
+  color: #ff4444;
+  border-color: #ff4444;
+
+  &:hover:not(:disabled) {
+    background: #ff4444;
+    color: #000;
+  }
+}
+
+.btn-accept:disabled,
+.btn-reject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -23,6 +23,16 @@
             <a [routerLink]="['/post', n.target_post]" class="notif__post-link">ver post</a>
           }
           <time>{{ n.created_at | date:'short' }}</time>
+          @if (n.verb === 'follow_request') {
+            <div class="notif__actions">
+              <button class="btn-accept" (click)="acceptRequest(n)" [disabled]="actionLoading()[n.id]">
+                {{ actionLoading()[n.id] ? '...' : 'Aceptar' }}
+              </button>
+              <button class="btn-reject" (click)="rejectRequest(n)" [disabled]="actionLoading()[n.id]">
+                {{ actionLoading()[n.id] ? '...' : 'Rechazar' }}
+              </button>
+            </div>
+          }
         </div>
       </article>
     } @empty {

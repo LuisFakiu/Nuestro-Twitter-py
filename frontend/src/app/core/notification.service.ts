@@ -45,4 +45,12 @@ export class NotificationService {
       tap(() => this._unreadCount.set(0)),
     );
   }
+
+  acceptFollowRequest(username: string): Observable<any> {
+    return this.http.post(`${this.apiBase}/users/${username}/handle-follow-request/`, {}, { responseType: 'text' });
+  }
+
+  rejectFollowRequest(username: string): Observable<any> {
+    return this.http.delete(`${this.apiBase}/users/${username}/handle-follow-request/`, { responseType: 'text' });
+  }
 }

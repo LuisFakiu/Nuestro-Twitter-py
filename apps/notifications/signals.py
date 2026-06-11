@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from apps.accounts.models import Follow
+from apps.accounts.models import Follow, FollowRequest
 from apps.posts.models import Like, Mention, Post
 
 from .models import Notification
@@ -18,6 +18,17 @@ def handle_like_notification(sender, instance, created, **kwargs):
         actor=instance.user,
         verb=Notification.Verb.LIKE,
         target_post=instance.post,
+    )
+
+
+@receiver(post_save, sender=FollowRequest)
+def handle_follow_request_notification(sender, instance, created, **kwargs):
+    if not created:
+        return
+    Notification.objects.create(
+        recipient=instance.following,
+        actor=instance.follower,
+        verb=Notification.Verb.FOLLOW_REQUEST,
     )
 
 
