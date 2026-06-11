@@ -86,4 +86,25 @@
       </div>
     }
   </div>
+
+  <nav class="chat__bottombar">
+    @if (!loading()) {
+      @for (conv of conversations(); track conv.id) {
+        <button
+          class="chat__bottombar-item"
+          [class.active]="conv.id === activeConvId()"
+          (click)="selectConversation(conv)"
+        >
+          @if (otherAvatar(conv)) {
+            <img [src]="otherAvatar(conv)" alt="" />
+          } @else {
+            <span class="chat__bottombar-placeholder">{{ otherParticipant(conv)[0] }}</span>
+          }
+          @if (conv.unread_count > 0) {
+            <span class="chat__bottombar-badge">{{ conv.unread_count }}</span>
+          }
+        </button>
+      }
+    }
+  </nav>
 </section>
