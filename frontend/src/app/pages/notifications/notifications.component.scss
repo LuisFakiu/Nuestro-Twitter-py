@@ -11,13 +11,13 @@
   align-items: center;
   margin-bottom: 1.5rem;
 
-  h1 { color: var(--neon, #00ff41); }
+  h1 { color: var(--neon); }
 }
 
 .mark-read-btn {
   background: transparent;
-  border: 1px solid var(--border, #333);
-  color: var(--text-muted, #888);
+  border: 1px solid var(--border);
+  color: var(--muted);
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
   cursor: pointer;
@@ -31,12 +31,12 @@
   padding: 0.75rem;
   border-radius: 4px;
   margin-bottom: 0.5rem;
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
 
   &.unread {
-    border-color: var(--neon, #00ff41);
-    background: rgba(0, 255, 65, 0.04);
+    border-color: var(--neon);
+    background: var(--neon-tint);
   }
 }
 
@@ -49,8 +49,8 @@
 }
 
 .placeholder {
-  background: var(--neon, #00ff41);
-  color: #000;
+  background: var(--neon);
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,14 +60,14 @@
 
 .notif__body {
   flex: 1;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 
-  a { color: var(--neon, #00ff41); text-decoration: none; }
-  time { color: var(--text-muted, #888); font-size: 0.8rem; }
+  a { color: var(--neon); text-decoration: none; }
+  time { color: var(--muted); font-size: 0.8rem; }
 }
 
 .notif__post-link {
@@ -83,7 +83,7 @@
 
 .btn-accept,
 .btn-reject {
-  border: 1px solid var(--border, #333);
+  border: 1px solid var(--border);
   padding: 0.3rem 0.8rem;
   border-radius: 4px;
   cursor: pointer;
@@ -94,12 +94,12 @@
 }
 
 .btn-accept {
-  color: var(--neon, #00ff41);
-  border-color: var(--neon, #00ff41);
+  color: var(--neon);
+  border-color: var(--neon);
 
   &:hover:not(:disabled) {
-    background: var(--neon, #00ff41);
-    color: #000;
+    background: var(--neon);
+    color: var(--bg);
   }
 }
 

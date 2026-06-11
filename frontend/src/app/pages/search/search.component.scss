@@ -13,9 +13,9 @@
 
 .search__bar input {
   flex: 1;
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
-  color: var(--text, #e0e0e0);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 0.5rem;
   border-radius: 4px;
   font-family: inherit;
@@ -23,12 +23,12 @@
 
 .search__bar input:focus {
   outline: none;
-  border-color: var(--neon, #00ff41);
+  border-color: var(--neon);
 }
 
 .search__bar button {
-  background: var(--neon, #00ff41);
-  color: #000;
+  background: var(--neon);
+  color: var(--bg);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -48,13 +48,13 @@
   display: flex;
   gap: 0;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border, #333);
+  border-bottom: 1px solid var(--border);
 }
 
 .tab {
   background: none;
   border: none;
-  color: var(--muted, #888);
+  color: var(--muted);
   padding: 0.6rem 1rem;
   cursor: pointer;
   font-family: inherit;
@@ -64,19 +64,19 @@
 }
 
 .tab:hover {
-  color: var(--text, #e0e0e0);
+  color: var(--text);
 }
 
 .tab--active {
-  color: var(--neon, #00ff41);
-  border-bottom-color: var(--neon, #00ff41);
+  color: var(--neon);
+  border-bottom-color: var(--neon);
 }
 
 .post {
   padding: 0.75rem;
   border-radius: 4px;
   margin-bottom: 0.5rem;
-  border: 1px solid var(--border, #333);
+  border: 1px solid var(--border);
 }
 
 .post__head {
@@ -106,8 +106,8 @@
   flex-shrink: 0;
 
   &--placeholder {
-    background: var(--neon, #00ff41);
-    color: #000;
+    background: var(--neon);
+    color: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -123,13 +123,13 @@
 
 .post__author {
   font-weight: bold;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   text-decoration: none;
 }
 
 .post__date {
   font-size: 0.8rem;
-  color: var(--muted, #888);
+  color: var(--muted);
 }
 
 .post__body {
@@ -143,8 +143,8 @@
   gap: 0.5rem;
   align-items: center;
   font-size: 0.85rem;
-  color: var(--muted, #888);
-  border-top: 1px dashed var(--border, #333);
+  color: var(--muted);
+  border-top: 1px dashed var(--border);
   padding-top: 0.5rem;
   margin-top: 0.5rem;
 }
@@ -154,7 +154,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  border: 1px solid var(--border, #333);
+  border: 1px solid var(--border);
   border-radius: 4px;
   margin-bottom: 0.5rem;
   text-decoration: none;
@@ -162,16 +162,16 @@
 }
 
 .hashtag-card:hover {
-  background: var(--bg-soft, #111);
+  background: var(--bg-soft);
 }
 
 .hashtag-card strong {
-  color: var(--neon, #00ff41);
+  color: var(--neon);
 }
 
 .hashtag-card__count {
   font-size: 0.85rem;
-  color: var(--muted, #888);
+  color: var(--muted);
 }
 
 .user-card {
@@ -186,7 +186,7 @@
 }
 
 .user-card:hover {
-  background: var(--bg-soft, #111);
+  background: var(--bg-soft);
 }
 
 .user-card__avatar img,
@@ -198,8 +198,8 @@
 }
 
 .placeholder {
-  background: var(--neon, #00ff41);
-  color: #000;
+  background: var(--neon);
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,13 +207,13 @@
 }
 
 .user-card__info p {
-  color: var(--text-muted, #888);
+  color: var(--muted);
   font-size: 0.85rem;
 }
 
 .loc {
   font-size: 0.8rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
 }
 
 .post__img {
@@ -226,24 +226,24 @@
 
 .shared-post {
   margin: 0.5rem 0;
-  border-color: var(--neon-dim, #1faa07);
+  border-color: var(--neon-dim);
   opacity: 0.9;
   cursor: pointer;
-  &:hover { border-color: var(--neon, #00ff41); }
+  &:hover { border-color: var(--neon); }
 
   &--deleted {
     opacity: 0.6;
     cursor: default;
     border-style: dashed;
-    border-color: var(--muted, #888);
+    border-color: var(--muted);
 
     &:hover {
-      border-color: var(--muted, #888);
+      border-color: var(--muted);
     }
   }
 
   &__deleted-msg {
-    color: var(--muted, #888);
+    color: var(--muted);
     font-style: italic;
     text-align: center;
     margin: 0.5rem 0;
@@ -253,7 +253,7 @@
 .action-btn {
   background: none;
   border: none;
-  color: var(--text-muted, #888);
+  color: var(--muted);
   cursor: pointer;
   font-family: inherit;
   display: inline-flex;
@@ -265,8 +265,8 @@
   transition: color 0.15s;
   text-decoration: none;
 
-  &:hover { color: var(--neon, #00ff41); }
-  &.active { color: var(--neon, #00ff41); }
+  &:hover { color: var(--neon); }
+  &.active { color: var(--neon); }
   &.danger:hover { color: #ff5555; }
 }
 
@@ -281,7 +281,7 @@
 .confirm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -290,8 +290,8 @@
 }
 
 .confirm-modal {
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   width: 100%;
@@ -301,17 +301,17 @@
 
 .confirm-modal__title {
   margin: 0 0 0.5rem;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   font-size: 1.05rem;
 }
 
 .confirm-modal__msg {
   margin: 0 0 1rem;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-size: 0.9rem;
   line-height: 1.4;
 
-  strong { color: var(--neon, #00ff41); }
+  strong { color: var(--neon); }
 }
 
 .confirm-modal__actions {
@@ -334,10 +334,10 @@
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid var(--border, #333);
-  color: var(--text, #e0e0e0);
+  border: 1px solid var(--border);
+  color: var(--text);
 
-  &:hover:not(:disabled) { border-color: var(--text, #e0e0e0); }
+  &:hover:not(:disabled) { border-color: var(--text); }
 }
 
 .btn-danger {
@@ -351,17 +351,17 @@
 
 .btn-neon {
   background: transparent;
-  border: 1px solid var(--neon-dim, #1faa07);
-  color: var(--neon, #00ff41);
+  border: 1px solid var(--neon-dim);
+  color: var(--neon);
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: var(--neon, #00ff41);
-    color: #000;
-    box-shadow: 0 0 14px rgba(0, 255, 65, 0.6);
+    background: var(--neon);
+    color: var(--bg);
+    box-shadow: 0 0 14px var(--neon-glow);
   }
 
   &:disabled {
@@ -381,10 +381,10 @@
 .quote-textarea {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid var(--border, #333);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-family: inherit;
   font-size: 0.9rem;
   padding: 0.5rem;
@@ -393,17 +393,17 @@
 
   &:focus {
     outline: none;
-    border-color: var(--neon-dim, #1faa07);
+    border-color: var(--neon-dim);
   }
 }
 
 .quote-input {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid var(--border, #333);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-family: inherit;
   font-size: 0.85rem;
   padding: 0.5rem;
@@ -411,6 +411,6 @@
 
   &:focus {
     outline: none;
-    border-color: var(--neon-dim, #1faa07);
+    border-color: var(--neon-dim);
   }
 }

@@ -19,7 +19,7 @@
   background: var(--bg-soft);
   color: var(--neon);
   border-bottom: 1px solid var(--neon-dim);
-  box-shadow: 0 0 12px rgba(57, 255, 20, 0.25);
+  box-shadow: 0 0 12px var(--neon-glow);
 
   .brand {
     color: var(--neon);
@@ -85,7 +85,7 @@
       }
 
       &:hover {
-        background: rgba(57, 255, 20, 0.08);
+        background: var(--neon-tint);
         color: var(--neon);
         border-color: var(--neon-dim);
       }
@@ -94,8 +94,8 @@
         position: absolute;
         top: -6px;
         right: -8px;
-        background: #ff4081;
-        color: #fff;
+        background: var(--neon);
+        color: var(--bg);
         font-size: 0.6rem;
         font-weight: bold;
         padding: 0.1rem 0.3rem;
@@ -147,8 +147,8 @@
       position: absolute;
       top: -6px;
       right: -8px;
-      background: #ff4081;
-      color: #fff;
+      background: var(--neon);
+      color: var(--bg);
       font-size: 0.55rem;
       font-weight: bold;
       padding: 0.08rem 0.25rem;
@@ -178,7 +178,7 @@
     height: 64px;
     background: var(--bg-soft);
     border-top: 1px solid var(--neon-dim);
-    box-shadow: 0 -2px 12px rgba(57, 255, 20, 0.15);
+    box-shadow: 0 -2px 12px var(--neon-glow);
     align-items: center;
     justify-content: space-around;
     padding: 0 0.25rem;
@@ -206,7 +206,7 @@
       &.active {
         color: var(--neon);
         text-shadow: 0 0 4px var(--neon);
-        background: rgba(57, 255, 20, 0.06);
+        background: var(--neon-tint);
         border-color: var(--neon-dim);
       }
 
@@ -238,7 +238,7 @@
 
       .bottom-nav__placeholder {
         background: var(--neon);
-        color: #000;
+        color: var(--bg);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -264,8 +264,8 @@
       position: absolute;
       top: -6px;
       right: -8px;
-      background: #ff4081;
-      color: #fff;
+      background: var(--neon);
+      color: var(--bg);
       font-size: 0.55rem;
       font-weight: bold;
       padding: 0.08rem 0.25rem;

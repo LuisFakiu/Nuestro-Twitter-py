@@ -88,6 +88,32 @@
     </div>
 
     <div class="card">
+      <h2>Apariencia</h2>
+      <p class="card__desc">Elige el tema visual de la aplicación.</p>
+      <div class="theme-selector">
+        @for (theme of themeService.themes; track theme.id) {
+          <button
+            class="theme-card"
+            [class.active]="themeService.currentTheme() === theme.id"
+            (click)="themeService.setTheme(theme.id)"
+          >
+            <div
+              class="theme-preview"
+              [style.--preview-bg]="theme.preview.bg"
+              [style.--preview-neon]="theme.preview.neon"
+              [style.--preview-text]="theme.preview.text"
+            >
+              <span class="theme-preview__dot"></span>
+              <span class="theme-preview__line"></span>
+              <span class="theme-preview__line"></span>
+            </div>
+            <span class="theme-card__name">{{ theme.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Cerrar sesión</h2>
       <p class="card__desc">Salir de tu cuenta actual.</p>
       <button class="btn btn--logout" (click)="logout()">Cerrar sesión</button>

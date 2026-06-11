@@ -9,8 +9,8 @@
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -25,8 +25,8 @@
 }
 
 .avatar-placeholder {
-  background: var(--neon, #00ff41);
-  color: #000;
+  background: var(--neon);
+  color: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,12 +40,12 @@
 
 .profile-card__info h1 {
   margin: 0 0 0.5rem;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
 }
 
 .bio { color: var(--text, #e0e0e0); }
 .location, .joined {
-  color: var(--text-muted, #888);
+  color: var(--muted);
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -56,7 +56,7 @@
   display: flex;
   gap: 1.5rem;
   margin-top: 0.75rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
   align-items: center;
 }
 
@@ -95,7 +95,7 @@
   transition: all 0.15s;
 
   &:hover {
-    background: rgba(57, 255, 20, 0.08);
+    background: var(--neon-tint);
     box-shadow: 0 0 8px var(--neon);
   }
 }
@@ -112,8 +112,8 @@
 }
 
 .follow-modal {
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   width: 100%;
   max-width: 420px;
@@ -132,7 +132,7 @@
 
   h2 {
     margin: 0;
-    color: var(--neon, #00ff41);
+    color: var(--neon);
     font-size: 1.1rem;
   }
 }
@@ -140,7 +140,7 @@
 .follow-modal__close {
   background: none;
   border: none;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-size: 1.5rem;
   cursor: pointer;
   line-height: 1;
@@ -155,7 +155,7 @@
 }
 
 .follow-modal__msg {
-  color: var(--text-muted, #888);
+  color: var(--muted);
   padding: 1rem;
   text-align: center;
 }
@@ -195,7 +195,7 @@
 .confirm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,8 +204,8 @@
 }
 
 .confirm-modal {
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   width: 100%;
@@ -215,13 +215,13 @@
 
 .confirm-modal__title {
   margin: 0 0 0.5rem;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   font-size: 1.05rem;
 }
 
 .confirm-modal__msg {
   margin: 0 0 1rem;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-size: 0.9rem;
   line-height: 1.4;
 
@@ -247,8 +247,8 @@
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid var(--border, #333);
-  color: var(--text, #e0e0e0);
+  border: 1px solid var(--border);
+  color: var(--text);
 
   &:hover:not(:disabled) { border-color: var(--text, #e0e0e0); }
 }
@@ -268,10 +268,10 @@
   align-items: center;
   padding: 0.6rem 0.5rem;
   text-decoration: none;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   border-radius: 4px;
 
-  &:hover { background: rgba(0, 255, 65, 0.06); }
+  &:hover { background: var(--neon-tint); }
 }
 
 .follow-list__avatar {
@@ -291,7 +291,7 @@
 }
 
 .follow-list__bio {
-  color: var(--text-muted, #888);
+  color: var(--muted);
   font-size: 0.85rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -309,7 +309,7 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--text-muted, #888);
+  color: var(--muted);
   font-family: inherit;
   font-size: 0.85rem;
   padding: 0.6rem 1rem;
@@ -317,11 +317,11 @@
   transition: color 0.15s, border-color 0.15s;
 
   &:hover {
-    color: var(--neon, #00ff41);
+    color: var(--neon);
   }
 
   &--active {
-    color: var(--neon, #00ff41);
+    color: var(--neon);
     border-bottom-color: var(--neon, #00ff41);
   }
 }
@@ -343,13 +343,13 @@
 .follow-btn.following {
   background: transparent;
   border: 1px solid var(--neon, #00ff41);
-  color: var(--neon, #00ff41);
+  color: var(--neon);
 }
 
 .follow-btn.pending {
   background: transparent;
   border: 1px solid var(--text-muted, #888);
-  color: var(--text-muted, #888);
+  color: var(--muted);
   cursor: default;
 
   &:hover {
@@ -361,8 +361,8 @@
 
 .edit-btn {
   background: transparent;
-  border: 1px solid var(--border, #333);
-  color: var(--text, #e0e0e0);
+  border: 1px solid var(--border);
+  color: var(--text);
   text-decoration: none;
 }
 
@@ -376,12 +376,12 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
 
   svg { opacity: 0.5; }
 
   h2 {
-    color: var(--text, #e0e0e0);
+    color: var(--text);
     margin: 0;
     font-size: 1.2rem;
   }
@@ -402,7 +402,7 @@
   width: 32px;
   height: 32px;
   border-radius: 4px;
-  border: 1px solid var(--border, #333);
+  border: 1px solid var(--border);
   background: transparent;
   font-family: inherit;
   font-size: 1rem;
@@ -412,8 +412,8 @@
   justify-content: center;
 
   &--accept {
-    color: var(--neon, #00ff41);
-    &:hover { background: rgba(0, 255, 65, 0.1); border-color: var(--neon, #00ff41); }
+    color: var(--neon);
+    &:hover { background: var(--neon-tint); border-color: var(--neon); }
   }
 
   &--reject {
@@ -428,12 +428,12 @@
   transition: border-color 0.15s;
 
   &:hover {
-    border-color: var(--neon-dim, #1faa07);
+    border-color: var(--neon-dim);
   }
 }
 
 .repost-container {
-  border: 1px solid var(--neon-dim, #1faa07);
+  border: 1px solid var(--neon-dim);
   border-radius: 8px;
   padding: 0.75rem;
   margin-bottom: 0.5rem;
@@ -443,7 +443,7 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.82rem;
-    color: var(--text-muted, #888);
+    color: var(--muted);
     margin-bottom: 0.5rem;
     padding-left: 0.25rem;
 
@@ -497,13 +497,13 @@
 
 .post__author {
   font-weight: bold;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   text-decoration: none;
 }
 
 .post__date {
   font-size: 0.8rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
 }
 
 .post__img {
@@ -516,7 +516,7 @@
 
 .shared-post {
   margin: 0.5rem 0;
-  border-color: var(--neon-dim, #1faa07);
+  border-color: var(--neon-dim);
   opacity: 0.9;
   cursor: pointer;
 
@@ -534,7 +534,7 @@
   }
 
   &__deleted-msg {
-    color: var(--text-muted, #888);
+    color: var(--muted);
     font-style: italic;
     text-align: center;
     margin: 0.5rem 0;
@@ -548,7 +548,7 @@
 .post__foot {
   display: flex;
   gap: 0.5rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
   font-size: 0.85rem;
   border-top: 1px dashed var(--border, #333);
   padding-top: 0.5rem;
@@ -558,7 +558,7 @@
 .action-btn {
   background: none;
   border: none;
-  color: var(--text-muted, #888);
+  color: var(--muted);
   cursor: pointer;
   font-family: inherit;
   display: inline-flex;
@@ -586,7 +586,7 @@
 .confirm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -595,8 +595,8 @@
 }
 
 .confirm-modal {
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   width: 100%;
@@ -614,8 +614,8 @@
 
 .btn-neon {
   background: transparent;
-  border: 1px solid var(--neon-dim, #1faa07);
-  color: var(--neon, #00ff41);
+  border: 1px solid var(--neon-dim);
+  color: var(--neon);
   padding: 0.45rem 0.9rem;
   border-radius: 4px;
   font-family: inherit;
@@ -627,9 +627,9 @@
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: var(--neon, #00ff41);
-    color: #000;
-    box-shadow: 0 0 14px rgba(0, 255, 65, 0.6);
+    background: var(--neon);
+    color: var(--bg);
+    box-shadow: 0 0 14px var(--neon-glow);
   }
 
   &:disabled {
@@ -649,10 +649,10 @@
 .quote-textarea {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid var(--border, #333);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-family: inherit;
   font-size: 0.9rem;
   padding: 0.5rem;
@@ -661,17 +661,17 @@
 
   &:focus {
     outline: none;
-    border-color: var(--neon-dim, #1faa07);
+    border-color: var(--neon-dim);
   }
 }
 
 .quote-input {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid var(--border, #333);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-family: inherit;
   font-size: 0.85rem;
   padding: 0.5rem;
@@ -679,7 +679,7 @@
 
   &:focus {
     outline: none;
-    border-color: var(--neon-dim, #1faa07);
+    border-color: var(--neon-dim);
   }
 }
 
@@ -707,13 +707,13 @@
   white-space: nowrap;
   background: transparent;
   border: 1px solid var(--neon, #00ff41);
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
 
   &:hover:not(:disabled) {
-    background: rgba(0, 255, 65, 0.1);
+    background: var(--neon-tint);
   }
 
   &:disabled {
@@ -736,10 +736,10 @@
   &:hover { background: rgba(255, 85, 85, 0.1); }
 
   &.blocked {
-    border-color: var(--neon, #00ff41);
-    color: var(--neon, #00ff41);
+    border-color: var(--neon);
+    color: var(--neon);
 
-    &:hover { background: rgba(0, 255, 65, 0.1); }
+    &:hover { background: var(--neon-tint); }
   }
 }
 
@@ -809,12 +809,12 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-muted, #888);
+  color: var(--muted);
 
   svg { opacity: 0.5; }
 
   h2 {
-    color: var(--text, #e0e0e0);
+    color: var(--text);
     margin: 0;
     font-size: 1.2rem;
   }

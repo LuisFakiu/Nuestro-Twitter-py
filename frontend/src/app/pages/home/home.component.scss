@@ -1,11 +1,3 @@
-$bg: #000;
-$bg-soft: #0a0f0a;
-$neon: #39ff14;
-$neon-dim: #1faa07;
-$text: #d6ffd6;
-$muted: #4d7a4d;
-$border: #134d13;
-
 :host {
   display: block;
   max-width: 760px;
@@ -22,14 +14,14 @@ $border: #134d13;
     h1 {
       font-size: 2.6rem;
       margin: 0;
-      color: $neon;
-      text-shadow: 0 0 6px rgba($neon, 0.7), 0 0 18px rgba($neon, 0.35);
+      color: var(--neon);
+      text-shadow: 0 0 6px var(--neon), 0 0 18px var(--neon-glow);
       letter-spacing: 2px;
     }
   }
 
   &__tag {
-    color: $muted;
+    color: var(--muted);
     margin: 0.4rem 0 0;
     font-size: 0.9rem;
   }
@@ -41,52 +33,52 @@ $border: #134d13;
     flex-wrap: wrap;
     margin-bottom: 1.5rem;
     padding: 0.6rem 1rem;
-    border: 1px dashed $border;
-    color: $muted;
+    border: 1px dashed var(--border);
+    color: var(--muted);
     font-size: 0.85rem;
 
     b {
-      color: $neon;
+      color: var(--neon);
       font-weight: 600;
     }
   }
 }
 
 .card {
-  background: $bg-soft;
-  border: 1px solid $border;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.9rem;
-  box-shadow: 0 0 0 1px rgba($neon, 0.05), 0 0 12px rgba($neon, 0.06);
+  box-shadow: 0 0 0 1px var(--neon-tint), 0 0 12px var(--neon-tint);
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &:hover {
-    border-color: $neon-dim;
-    box-shadow: 0 0 0 1px rgba($neon, 0.15), 0 0 18px rgba($neon, 0.18);
+    border-color: var(--neon-dim);
+    box-shadow: 0 0 0 1px var(--neon-glow), 0 0 18px var(--neon-glow);
   }
 
   h2 {
     margin: 0 0 0.5rem;
-    color: $neon;
+    color: var(--neon);
     font-size: 1.05rem;
   }
 
   code {
-    background: #001500;
-    color: $neon;
+    background: var(--bg);
+    color: var(--neon);
     padding: 1px 6px;
-    border: 1px solid $border;
+    border: 1px solid var(--border);
     border-radius: 3px;
   }
 
   &--loading {
-    color: $muted;
+    color: var(--muted);
   }
 
   &--error {
     border-color: #ff5555;
-    box-shadow: 0 0 12px rgba(#ff5555, 0.2);
+    box-shadow: 0 0 12px rgba(255, 85, 85, 0.2);
 
     h2 {
       color: #ff5555;
@@ -95,7 +87,7 @@ $border: #134d13;
 
   &--maintenance {
     border-color: #ffaa00;
-    box-shadow: 0 0 12px rgba(#ffaa00, 0.2);
+    box-shadow: 0 0 12px rgba(255, 170, 0, 0.2);
 
     h2 {
       color: #ffaa00;
@@ -131,8 +123,8 @@ $border: #134d13;
     flex-shrink: 0;
 
     &--placeholder {
-      background: $neon;
-      color: $bg;
+      background: var(--neon);
+      color: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -148,36 +140,36 @@ $border: #134d13;
   }
 
   &__author {
-    color: $neon;
+    color: var(--neon);
     font-weight: 700;
-    text-shadow: 0 0 4px rgba($neon, 0.5);
+    text-shadow: 0 0 4px var(--neon-glow);
     text-decoration: none;
   }
 
   &__date {
-    color: $muted;
+    color: var(--muted);
     font-size: 0.78rem;
   }
 
   &__body {
     margin: 0.25rem 0 0.75rem;
     line-height: 1.5;
-    color: $text;
+    color: var(--text);
     white-space: pre-wrap;
   }
 
   &__foot {
     display: flex;
     gap: 0.5rem;
-    color: $neon-dim;
+    color: var(--neon-dim);
     font-size: 0.82rem;
-    border-top: 1px dashed $border;
+    border-top: 1px dashed var(--border);
     padding-top: 0.5rem;
     margin-top: 0.5rem;
   }
 
   &__id {
-    color: $muted;
+    color: var(--muted);
   }
 }
 
@@ -190,8 +182,8 @@ $border: #134d13;
 
   &__btn {
     background: transparent;
-    color: $neon;
-    border: 1px solid $neon-dim;
+    color: var(--neon);
+    border: 1px solid var(--neon-dim);
     padding: 0.5rem 1.1rem;
     font-family: inherit;
     font-size: 0.9rem;
@@ -200,9 +192,9 @@ $border: #134d13;
     transition: all 0.15s;
 
     &:hover:not(:disabled) {
-      background: $neon;
-      color: $bg;
-      box-shadow: 0 0 14px rgba($neon, 0.6);
+      background: var(--neon);
+      color: var(--bg);
+      box-shadow: 0 0 14px var(--neon-glow);
     }
 
     &:disabled {
@@ -212,11 +204,11 @@ $border: #134d13;
   }
 
   &__info {
-    color: $muted;
+    color: var(--muted);
     font-size: 0.9rem;
 
     b {
-      color: $neon;
+      color: var(--neon);
     }
   }
 }
@@ -231,27 +223,27 @@ $border: #134d13;
 
 .shared-post {
   margin: 0.5rem 0;
-  border-color: $neon-dim;
+  border-color: var(--neon-dim);
   opacity: 0.9;
   cursor: pointer;
 
   &:hover {
-    border-color: $neon;
+    border-color: var(--neon);
   }
 
   &--deleted {
     opacity: 0.6;
     cursor: default;
     border-style: dashed;
-    border-color: $muted;
+    border-color: var(--muted);
 
     &:hover {
-      border-color: $muted;
+      border-color: var(--muted);
     }
   }
 
   &__deleted-msg {
-    color: $muted;
+    color: var(--muted);
     font-style: italic;
     text-align: center;
     margin: 0.5rem 0;
@@ -261,7 +253,7 @@ $border: #134d13;
 .action-btn {
   background: none;
   border: none;
-  color: $muted;
+  color: var(--muted);
   cursor: pointer;
   font-family: inherit;
   display: inline-flex;
@@ -273,8 +265,8 @@ $border: #134d13;
   transition: color 0.15s;
   text-decoration: none;
 
-  &:hover { color: $neon; }
-  &.active { color: $neon; }
+  &:hover { color: var(--neon); }
+  &.active { color: var(--neon); }
   &.danger:hover { color: #ff5555; }
 }
 
@@ -289,7 +281,7 @@ $border: #134d13;
 .confirm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -298,8 +290,8 @@ $border: #134d13;
 }
 
 .confirm-modal {
-  background: var(--bg-soft, #111);
-  border: 1px solid var(--border, #333);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   width: 100%;
@@ -309,17 +301,17 @@ $border: #134d13;
 
 .confirm-modal__title {
   margin: 0 0 0.5rem;
-  color: var(--neon, #00ff41);
+  color: var(--neon);
   font-size: 1.05rem;
 }
 
 .confirm-modal__msg {
   margin: 0 0 1rem;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
   font-size: 0.9rem;
   line-height: 1.4;
 
-  strong { color: var(--neon, #00ff41); }
+  strong { color: var(--neon); }
 }
 
 .confirm-modal__actions {
@@ -341,10 +333,10 @@ $border: #134d13;
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid var(--border, #333);
-  color: var(--text, #e0e0e0);
+  border: 1px solid var(--border);
+  color: var(--text);
 
-  &:hover:not(:disabled) { border-color: var(--text, #e0e0e0); }
+  &:hover:not(:disabled) { border-color: var(--text); }
 }
 
 .btn-danger {
@@ -358,8 +350,8 @@ $border: #134d13;
 
 .btn-neon {
   background: transparent;
-  border: 1px solid $neon-dim;
-  color: $neon;
+  border: 1px solid var(--neon-dim);
+  color: var(--neon);
   padding: 0.45rem 0.9rem;
   border-radius: 4px;
   font-family: inherit;
@@ -371,9 +363,9 @@ $border: #134d13;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: $neon;
-    color: $bg;
-    box-shadow: 0 0 14px rgba($neon, 0.6);
+    background: var(--neon);
+    color: var(--bg);
+    box-shadow: 0 0 14px var(--neon-glow);
   }
 
   &:disabled {
@@ -393,10 +385,10 @@ $border: #134d13;
 .quote-textarea {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid $border;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: $text;
+  color: var(--text);
   font-family: inherit;
   font-size: 0.9rem;
   padding: 0.5rem;
@@ -405,17 +397,17 @@ $border: #134d13;
 
   &:focus {
     outline: none;
-    border-color: $neon-dim;
+    border-color: var(--neon-dim);
   }
 }
 
 .quote-input {
   width: 100%;
   box-sizing: border-box;
-  background: #001500;
-  border: 1px solid $border;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  color: $text;
+  color: var(--text);
   font-family: inherit;
   font-size: 0.85rem;
   padding: 0.5rem;
@@ -423,6 +415,6 @@ $border: #134d13;
 
   &:focus {
     outline: none;
-    border-color: $neon-dim;
+    border-color: var(--neon-dim);
   }
 }

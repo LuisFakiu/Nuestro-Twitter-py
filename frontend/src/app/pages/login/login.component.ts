@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { ThemeService } from '../../core/theme.service';
 import { environment } from '../../../environments/environment';
 
 type Mode = 'login' | 'register';
@@ -19,6 +20,7 @@ declare const google: any;
 export class LoginComponent implements AfterViewInit {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
+  private themeService = inject(ThemeService);
   private router = inject(Router);
   private zone = inject(NgZone);
   private http = inject(HttpClient);
@@ -95,7 +97,11 @@ export class LoginComponent implements AfterViewInit {
       this.loading.set(true);
       this.error.set(null);
       this.auth.googleLogin(code).subscribe({
-        next: () => this.router.navigate(['/']),
+        next: () => {
+          const user = this.auth.user();
+          if (user) this.themeService.setUser(user.username);
+          this.router.navigate(['/']);
+        },
         error: (err) => {
           this.error.set(err?.error?.detail ?? 'Error al iniciar con Google');
           this.loading.set(false);
@@ -121,7 +127,10 @@ export class LoginComponent implements AfterViewInit {
     this.error.set(null);
     const { username, password } = this.loginForm.getRawValue();
     this.auth.login(username, password).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.themeService.setUser(username);
+        this.router.navigate(['/']);
+      },
       error: (err) => {
         this.error.set(err?.error?.detail ?? 'Credenciales inválidas');
         this.loading.set(false);
@@ -136,7 +145,10 @@ export class LoginComponent implements AfterViewInit {
     this.info.set(null);
     const { username, email, password } = this.registerForm.getRawValue();
     this.auth.register(username, email, password).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.themeService.setUser(username);
+        this.router.navigate(['/']);
+      },
       error: (err) => {
         this.error.set(this.parseError(err));
         this.loading.set(false);

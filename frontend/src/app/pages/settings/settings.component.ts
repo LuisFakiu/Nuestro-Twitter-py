@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
+import { ThemeService } from '../../core/theme.service';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
@@ -26,6 +27,7 @@ export class SettingsComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private router = inject(Router);
+  themeService = inject(ThemeService);
 
   private readonly apiBase = environment.apiUrl;
 
@@ -117,6 +119,7 @@ export class SettingsComponent implements OnInit {
   }
 
   logout(): void {
+    this.themeService.resetTheme();
     this.auth.logout();
     this.router.navigate(['/login']);
   }
