@@ -442,8 +442,11 @@
 
 .pinned {
   .chat__conv-info strong::after {
-    content: ' 📌';
-    font-size: 0.75rem;
+    content: ' ▶';
+    font-size: 0.7rem;
+    color: var(--neon);
+    text-shadow: 0 0 6px var(--neon);
+    margin-left: 0.25rem;
   }
 }
 

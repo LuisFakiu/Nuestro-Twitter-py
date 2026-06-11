@@ -99,12 +99,22 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.menuConvId = this.menuConvId === convId ? null : convId;
   }
 
+  private sortConversations(list: Conversation[]): Conversation[] {
+    return [...list].sort((a, b) => {
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }
+
   pin(conv: Conversation): void {
     this.menuConvId = null;
     this.msgs.pinConversation(conv.id).subscribe({
       next: () =>
         this.conversations.update((list) =>
-          list.map((c) => (c.id === conv.id ? { ...c, is_pinned: true } : c))
+          this.sortConversations(
+            list.map((c) => (c.id === conv.id ? { ...c, is_pinned: true } : c))
+          )
         ),
     });
   }
@@ -114,7 +124,9 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.msgs.unpinConversation(conv.id).subscribe({
       next: () =>
         this.conversations.update((list) =>
-          list.map((c) => (c.id === conv.id ? { ...c, is_pinned: false } : c))
+          this.sortConversations(
+            list.map((c) => (c.id === conv.id ? { ...c, is_pinned: false } : c))
+          )
         ),
     });
   }

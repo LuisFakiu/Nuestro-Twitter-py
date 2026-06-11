@@ -35,11 +35,11 @@
             @if (menuConvId === conv.id) {
               <div class="chat__menu">
                 @if (conv.is_pinned) {
-                  <button (click)="unpin(conv)">📌 Quitar fijado</button>
+                  <button (click)="unpin(conv)">▶ Quitar fijado</button>
                 } @else {
-                  <button (click)="pin(conv)">📌 Fijar chat</button>
+                  <button (click)="pin(conv)">▶ Fijar chat</button>
                 }
-                <button class="danger" (click)="hide(conv.id)">🗑️ Borrar chat</button>
+                <button class="danger" (click)="hide(conv.id)">✕ Borrar chat</button>
               </div>
             }
           </div>
