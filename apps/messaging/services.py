@@ -9,7 +9,7 @@ User = get_user_model()
 def get_or_create_conversation(user: User, other_user_id: int) -> Conversation:
     other = User.objects.get(id=other_user_id)
     qs = Conversation.objects.filter(participants=user).filter(participants=other)
-    conversation = qs.annotate(cnt=models.Count('participants')).filter(cnt=2).first()
+    conversation = qs.annotate(cnt=models.Count('participants', distinct=True)).filter(cnt=2).first()
     if conversation:
         return conversation
     conversation = Conversation.objects.create()

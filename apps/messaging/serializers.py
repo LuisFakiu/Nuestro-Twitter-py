@@ -31,10 +31,11 @@ class ConversationListSerializer(serializers.ModelSerializer):
     participants = UserMinSerializer(many=True, read_only=True)
     last_message = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
+    is_pinned = serializers.BooleanField(source='user_is_pinned', read_only=True, default=False)
 
     class Meta:
         model = Conversation
-        fields = ['id', 'participants', 'last_message', 'unread_count', 'created_at']
+        fields = ['id', 'participants', 'last_message', 'unread_count', 'is_pinned', 'created_at']
 
     def get_last_message(self, obj):
         last = obj.messages.last()

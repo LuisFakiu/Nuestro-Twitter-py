@@ -21,4 +21,19 @@ urlpatterns = [
         views.mark_read,
         name='conversation-mark-read',
     ),
+    path(
+        'conversations/<int:pk>/pin/',
+        views.pin_conversation,
+        name='conversation-pin',
+    ),
+    path(
+        'conversations/<int:pk>/unpin/',
+        views.unpin_conversation,
+        name='conversation-unpin',
+    ),
+    path(
+        'conversations/<int:pk>/hide/',
+        views.hide_conversation,
+        name='conversation-hide',
+    ),
 ]

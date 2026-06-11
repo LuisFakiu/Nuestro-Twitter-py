@@ -15,6 +15,24 @@ class Conversation(models.Model):
         return f'Conversation {self.pk}'
 
 
+class ConversationSettings(models.Model):
+    conversation = models.ForeignKey(
+        Conversation, on_delete=models.CASCADE, related_name='user_settings'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
+    is_pinned = models.BooleanField(default=False)
+    is_hidden = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = [['conversation', 'user']]
+        verbose_name_plural = 'conversation settings'
+
+    def __str__(self):
+        return f'{self.user.username} -> conv {self.conversation.pk}'
+
+
 class Message(models.Model):
     conversation = models.ForeignKey(
         Conversation, on_delete=models.CASCADE, related_name='messages'

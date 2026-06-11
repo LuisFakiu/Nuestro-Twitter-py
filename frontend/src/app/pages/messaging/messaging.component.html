@@ -11,6 +11,7 @@
         <article
           class="chat__conv"
           [class.active]="conv.id === activeConvId()"
+          [class.pinned]="conv.is_pinned"
           (click)="selectConversation(conv)"
         >
           <div class="chat__avatar">
@@ -29,6 +30,19 @@
           @if (conv.unread_count > 0) {
             <span class="chat__badge">{{ conv.unread_count }}</span>
           }
+          <div class="chat__conv-actions" (click)="$event.stopPropagation()">
+            <button class="chat__action-btn" (click)="toggleMenu(conv.id)">⋮</button>
+            @if (menuConvId === conv.id) {
+              <div class="chat__menu">
+                @if (conv.is_pinned) {
+                  <button (click)="unpin(conv)">📌 Quitar fijado</button>
+                } @else {
+                  <button (click)="pin(conv)">📌 Fijar chat</button>
+                }
+                <button class="danger" (click)="hide(conv.id)">🗑️ Borrar chat</button>
+              </div>
+            }
+          </div>
         </article>
       } @empty {
         <article class="card"><p>&gt; sin conversaciones</p></article>

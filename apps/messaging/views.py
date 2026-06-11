@@ -1,10 +1,10 @@
-from django.db.models import Q
+from django.db.models import Exists, OuterRef
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Conversation, Message
+from .models import Conversation, ConversationSettings, Message
 from .serializers import (
     ConversationCreateSerializer,
     ConversationListSerializer,
@@ -18,7 +18,25 @@ from .services import get_or_create_conversation, mark_conversation_read, send_m
 @permission_classes([IsAuthenticated])
 def conversation_list(request):
     if request.method == 'GET':
-        qs = Conversation.objects.filter(participants=request.user)
+        hidden_qs = ConversationSettings.objects.filter(
+            conversation=OuterRef('pk'),
+            user=request.user,
+            is_hidden=True,
+        )
+        pinned_qs = ConversationSettings.objects.filter(
+            conversation=OuterRef('pk'),
+            user=request.user,
+            is_pinned=True,
+        )
+        qs = (
+            Conversation.objects.filter(participants=request.user)
+            .annotate(
+                user_is_pinned=Exists(pinned_qs),
+                user_is_hidden=Exists(hidden_qs),
+            )
+            .filter(user_is_hidden=False)
+            .order_by('-user_is_pinned', '-created_at')
+        )
         serializer = ConversationListSerializer(
             qs, many=True, context={'request': request}
         )
@@ -89,7 +107,57 @@ def get_or_create(request):
         return Response(
             {'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST
         )
+    pinned_qs = ConversationSettings.objects.filter(
+        conversation=OuterRef('pk'),
+        user=request.user,
+        is_pinned=True,
+    )
+    hidden_qs = ConversationSettings.objects.filter(
+        conversation=OuterRef('pk'),
+        user=request.user,
+        is_hidden=True,
+    )
+    conversation = Conversation.objects.filter(pk=conversation.pk).annotate(
+        user_is_pinned=Exists(pinned_qs),
+        user_is_hidden=Exists(hidden_qs),
+    ).first()
     serializer = ConversationListSerializer(
         conversation, context={'request': request}
     )
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def pin_conversation(request, pk):
+    conv = Conversation.objects.get(id=pk, participants=request.user)
+    ConversationSettings.objects.update_or_create(
+        conversation=conv,
+        user=request.user,
+        defaults={'is_pinned': True},
+    )
+    return Response({'detail': 'Conversación fijada.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unpin_conversation(request, pk):
+    conv = Conversation.objects.get(id=pk, participants=request.user)
+    ConversationSettings.objects.update_or_create(
+        conversation=conv,
+        user=request.user,
+        defaults={'is_pinned': False},
+    )
+    return Response({'detail': 'Conversación desfijada.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def hide_conversation(request, pk):
+    conv = Conversation.objects.get(id=pk, participants=request.user)
+    ConversationSettings.objects.update_or_create(
+        conversation=conv,
+        user=request.user,
+        defaults={'is_hidden': True},
+    )
+    return Response({'detail': 'Conversación ocultada.'})

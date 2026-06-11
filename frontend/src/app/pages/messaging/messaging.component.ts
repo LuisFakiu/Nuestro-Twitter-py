@@ -41,6 +41,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   loading = signal(true);
   chatLoading = signal(false);
   newMessage = signal('');
+  menuConvId: number | null = null;
   private autoScrollEnabled = true;
 
   ngOnInit(): void {
@@ -92,6 +93,38 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         el.scrollTop = el.scrollHeight;
       }
     } catch {}
+  }
+
+  toggleMenu(convId: number): void {
+    this.menuConvId = this.menuConvId === convId ? null : convId;
+  }
+
+  pin(conv: Conversation): void {
+    this.menuConvId = null;
+    this.msgs.pinConversation(conv.id).subscribe({
+      next: () =>
+        this.conversations.update((list) =>
+          list.map((c) => (c.id === conv.id ? { ...c, is_pinned: true } : c))
+        ),
+    });
+  }
+
+  unpin(conv: Conversation): void {
+    this.menuConvId = null;
+    this.msgs.unpinConversation(conv.id).subscribe({
+      next: () =>
+        this.conversations.update((list) =>
+          list.map((c) => (c.id === conv.id ? { ...c, is_pinned: false } : c))
+        ),
+    });
+  }
+
+  hide(convId: number): void {
+    this.menuConvId = null;
+    this.msgs.hideConversation(convId).subscribe({
+      next: () =>
+        this.conversations.update((list) => list.filter((c) => c.id !== convId)),
+    });
   }
 
   send(): void {

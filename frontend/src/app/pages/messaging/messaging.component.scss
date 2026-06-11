@@ -377,6 +377,76 @@
   }
 }
 
+.chat__conv-actions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.chat__action-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  display: none;
+
+  .chat__conv:hover &,
+  .chat__conv.active & {
+    display: block;
+  }
+
+  &:hover {
+    color: var(--neon);
+    background: var(--neon-tint);
+  }
+}
+
+.chat__menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  background: var(--bg-soft);
+  border: 1px solid var(--neon-dim);
+  border-radius: 6px;
+  padding: 0.25rem 0;
+  min-width: 150px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+
+  button {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s;
+
+    &:hover {
+      background: var(--neon-tint);
+    }
+
+    &.danger {
+      color: #ff5555;
+    }
+  }
+}
+
+.pinned {
+  .chat__conv-info strong::after {
+    content: ' 📌';
+    font-size: 0.75rem;
+  }
+}
+
 .chat__sidebar::-webkit-scrollbar,
 .chat__messages::-webkit-scrollbar {
   width: 6px;

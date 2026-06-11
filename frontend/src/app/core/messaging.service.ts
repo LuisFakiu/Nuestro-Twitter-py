@@ -23,6 +23,7 @@ export interface Conversation {
   participants: Participant[];
   last_message: MessageData | null;
   unread_count: number;
+  is_pinned: boolean;
   created_at: string;
 }
 
@@ -45,10 +46,6 @@ export class MessagingService {
   fetchConversations(): Observable<Conversation[]> {
     return this.http.get<Conversation[]>(`${this.apiBase}/messages/conversations/`).pipe(
       map((list) => {
-        list.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
         this.conversations.set(list);
         return list;
       })
@@ -85,6 +82,27 @@ export class MessagingService {
   markAsRead(conversationId: number): Observable<any> {
     return this.http.post(
       `${this.apiBase}/messages/conversations/${conversationId}/read/`,
+      {}
+    );
+  }
+
+  pinConversation(conversationId: number): Observable<any> {
+    return this.http.post(
+      `${this.apiBase}/messages/conversations/${conversationId}/pin/`,
+      {}
+    );
+  }
+
+  unpinConversation(conversationId: number): Observable<any> {
+    return this.http.post(
+      `${this.apiBase}/messages/conversations/${conversationId}/unpin/`,
+      {}
+    );
+  }
+
+  hideConversation(conversationId: number): Observable<any> {
+    return this.http.post(
+      `${this.apiBase}/messages/conversations/${conversationId}/hide/`,
       {}
     );
   }
