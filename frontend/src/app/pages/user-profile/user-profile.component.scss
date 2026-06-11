@@ -657,6 +657,30 @@
   align-items: flex-end;
 }
 
+.msg-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  background: transparent;
+  border: 1px solid var(--neon, #00ff41);
+  color: var(--neon, #00ff41);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 255, 65, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .block-btn {
   padding: 0.4rem 0.8rem;
   border-radius: 4px;

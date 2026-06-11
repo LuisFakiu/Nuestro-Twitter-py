@@ -1,7 +1,16 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { MessagingService, Conversation } from '../../core/messaging.service';
 
@@ -12,9 +21,12 @@ import { MessagingService, Conversation } from '../../core/messaging.service';
   templateUrl: './messaging.component.html',
   styleUrl: './messaging.component.scss',
 })
-export class MessagingComponent implements OnInit, OnDestroy {
+export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('messageContainer') private msgContainer!: ElementRef;
+
   private msgs = inject(MessagingService);
   private auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
 
   conversations = this.msgs.conversations;
   messages = this.msgs.messages;
@@ -25,12 +37,26 @@ export class MessagingComponent implements OnInit, OnDestroy {
   loading = signal(true);
   chatLoading = signal(false);
   newMessage = signal('');
+  private autoScrollEnabled = true;
 
   ngOnInit(): void {
     this.msgs.fetchConversations().subscribe({
-      next: () => this.loading.set(false),
+      next: (convs) => {
+        this.loading.set(false);
+        const convId = this.route.snapshot.queryParamMap.get('conv');
+        if (convId) {
+          const conv = convs.find((c) => c.id === Number(convId));
+          if (conv) this.selectConversation(conv);
+        }
+      },
       error: () => this.loading.set(false),
     });
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.autoScrollEnabled) {
+      this.scrollToBottom();
+    }
   }
 
   ngOnDestroy(): void {
@@ -45,9 +71,19 @@ export class MessagingComponent implements OnInit, OnDestroy {
         this.msgs.markAsRead(conv.id).subscribe();
         this.msgs.connectWebSocket(conv.id);
         this.updateUnreadCount(conv.id, 0);
+        this.scrollToBottom();
       },
       error: () => this.chatLoading.set(false),
     });
+  }
+
+  private scrollToBottom(): void {
+    try {
+      const el = this.msgContainer?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    } catch {}
   }
 
   send(): void {
@@ -56,6 +92,7 @@ export class MessagingComponent implements OnInit, OnDestroy {
 
     this.msgs.sendViaWebSocket(content);
     this.newMessage.set('');
+    this.autoScrollEnabled = true;
   }
 
   otherParticipant(conv: Conversation): string {
@@ -76,6 +113,13 @@ export class MessagingComponent implements OnInit, OnDestroy {
     this.conversations.update((list) =>
       list.map((c) => (c.id === convId ? { ...c, unread_count: count } : c))
     );
+  }
+
+  onScroll(): void {
+    const el = this.msgContainer?.nativeElement;
+    if (!el) return;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+    this.autoScrollEnabled = atBottom;
   }
 
   trackById(_: number, item: any): number {

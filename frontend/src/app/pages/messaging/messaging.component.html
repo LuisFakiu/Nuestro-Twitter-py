@@ -40,7 +40,7 @@
     @if (chatLoading()) {
       <div class="card card--loading"><p>&gt; cargando mensajes...</p></div>
     } @else if (activeConvId()) {
-      <div class="chat__messages" #messageContainer>
+      <div class="chat__messages" #messageContainer (scroll)="onScroll()">
         @for (msg of messages(); track msg.id) {
           <div class="chat__msg" [class.own]="msg.sender.username === currentUsername()">
             <div class="chat__msg-avatar">

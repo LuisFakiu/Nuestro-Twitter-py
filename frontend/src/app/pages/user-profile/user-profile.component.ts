@@ -4,11 +4,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth.service';
+import { MessagingService } from '../../core/messaging.service';
 import { FormatContentPipe } from '../../shared/format-content.pipe';
 import { Post } from '../../shared/post.types';
 import { environment } from '../../../environments/environment';
 
 interface PublicProfile {
+  id: number;
   username: string;
   bio?: string;
   avatar_url?: string;
@@ -54,6 +56,7 @@ export class UserProfileComponent implements OnInit {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private messaging = inject(MessagingService);
 
   private readonly apiBase = environment.apiUrl;
 
@@ -62,6 +65,7 @@ export class UserProfileComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   followLoading = signal(false);
+  msgLoading = signal(false);
   activeTab = signal<ProfileTab>('posts');
 
   followModalMode = signal<FollowModalMode>(null);
@@ -337,6 +341,19 @@ export class UserProfileComponent implements OnInit {
         this.deleteTarget.set(null);
       },
       error: () => { this.deleting.set(false); this.deleteTarget.set(null); },
+    });
+  }
+
+  sendMessage(): void {
+    const p = this.profile();
+    if (!p) return;
+    this.msgLoading.set(true);
+    this.messaging.getOrCreateConversation(p.id).subscribe({
+      next: (conv) => {
+        this.msgLoading.set(false);
+        this.router.navigate(['/messages'], { queryParams: { conv: conv.id } });
+      },
+      error: () => this.msgLoading.set(false),
     });
   }
 

@@ -105,6 +105,7 @@ export class MessagingService {
       const data = JSON.parse(event.data);
       if (data.type === 'message') {
         this.messages.update((msgs) => [...msgs, data]);
+        this.fetchConversations().subscribe();
       }
     };
 

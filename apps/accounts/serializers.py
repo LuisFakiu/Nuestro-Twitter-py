@@ -77,7 +77,7 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'username', 'bio', 'avatar_url', 'location',
+            'id', 'username', 'bio', 'avatar_url', 'location',
             'is_private', 'date_joined', 'followers_count',
             'following_count', 'posts_count', 'is_following',
             'is_pending_follow', 'is_blocked', 'is_blocked_by',
