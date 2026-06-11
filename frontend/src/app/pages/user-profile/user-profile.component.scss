@@ -1,3 +1,10 @@
+:host {
+  display: block;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 5rem;
+}
+
 .profile-card {
   display: flex;
   gap: 1.5rem;
