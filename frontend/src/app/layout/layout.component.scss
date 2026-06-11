@@ -21,19 +21,6 @@
   border-bottom: 1px solid var(--neon-dim);
   box-shadow: 0 0 12px rgba(57, 255, 20, 0.25);
 
-  .hamburger {
-    background: transparent;
-    border: 1px solid var(--neon-dim);
-    color: var(--neon);
-    font-size: 1.2rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 6px;
-    cursor: pointer;
-    display: none;
-
-    &:hover { box-shadow: 0 0 8px var(--neon); }
-  }
-
   .brand {
     color: var(--neon);
     font-weight: 700;
@@ -55,24 +42,8 @@
     .hello { color: var(--muted); }
     strong { color: var(--neon); text-shadow: 0 0 4px var(--neon); }
 
-    .logout {
-      margin-left: 0.5rem;
-      background: transparent;
-      color: var(--neon);
-      border: 1px solid var(--neon-dim);
-      padding: 0.35rem 0.7rem;
-      border-radius: 6px;
-      font-family: inherit;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-
-      &:hover {
-        background: var(--neon);
-        color: var(--bg);
-        box-shadow: 0 0 10px var(--neon);
-      }
+    .header-notif {
+      display: none;
     }
   }
 }
@@ -149,6 +120,44 @@
 
 @media (max-width: 768px) {
   .topbar .user .hello { display: none; }
+  .topbar .user .header-notif {
+    display: flex;
+    margin-left: 0.5rem;
+    color: var(--neon);
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+    padding: 0.25rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--neon-dim);
+      box-shadow: 0 0 8px var(--neon);
+    }
+
+    &__wrap {
+      position: relative;
+      display: flex;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: #ff4081;
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: bold;
+      padding: 0.08rem 0.25rem;
+      border-radius: 8px;
+      min-width: 14px;
+      text-align: center;
+      line-height: 1.2;
+    }
+  }
 
   .body {
     grid-template-columns: 1fr;
@@ -214,6 +223,35 @@
       }
 
       &:hover { color: var(--neon); }
+    }
+
+    &__profile {
+      .bottom-nav__avatar,
+      .bottom-nav__placeholder {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid transparent;
+        transition: border-color 0.15s;
+      }
+
+      .bottom-nav__placeholder {
+        background: var(--neon);
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.7rem;
+        line-height: 1;
+      }
+
+      &.active .bottom-nav__avatar,
+      &.active .bottom-nav__placeholder {
+        border-color: var(--neon);
+        box-shadow: 0 0 6px var(--neon);
+      }
     }
 
     &__icon-wrap {

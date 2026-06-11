@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -36,6 +36,9 @@ export class MessagingService {
   readonly messages = signal<MessageData[]>([]);
   readonly connected = signal(false);
   readonly activeConversationId = signal<number | null>(null);
+  readonly totalUnread = computed(() =>
+    this.conversations().reduce((sum, c) => sum + c.unread_count, 0)
+  );
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
