@@ -153,6 +153,14 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 
+# CSRF: orígenes confiables para POST sobre HTTPS (admin, DRF browsable).
+# Django 4+ exige el origen completo con esquema, ej: https://tu-app.onrender.com
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:4200,http://localhost:8000',
+    cast=Csv(),
+)
+
 # Cloudinary
 CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
 CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY', default='')
