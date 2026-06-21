@@ -126,6 +126,12 @@ LOGGING = {
 GOOGLE_OAUTH_CLIENT_ID = config('GOOGLE_OAUTH_CLIENT_ID', default='')
 GOOGLE_OAUTH_CLIENT_SECRET = config('GOOGLE_OAUTH_CLIENT_SECRET', default='')
 
+# Bot de IA (estilo Grok) usando la API de Gemini.
+# Responde como comentario cuando lo arrobas (@<AI_BOT_USERNAME>) en un post/reply.
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+GEMINI_MODEL = config('GEMINI_MODEL', default='gemini-flash-latest')
+AI_BOT_USERNAME = config('AI_BOT_USERNAME', default='lekaja')
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
